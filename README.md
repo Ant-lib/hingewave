@@ -18,7 +18,7 @@ curl -fsSL https://raw.githubusercontent.com/Ant-lib/hingewave/main/macos/instal
 
 That downloads the latest release, verifies its checksum, puts Hingewave in Applications and opens it. A laptop icon appears in the menu bar. macOS then asks for Screen Recording once: turn on Hingewave under System Settings, Privacy and Security, Screen Recording. Now close the lid slowly.
 
-Homebrew users can run `brew install --cask --no-quarantine ant-lib/tap/hingewave` once the tap is published.
+Homebrew users: `brew tap ant-lib/tap` then `brew install --cask ant-lib/tap/hingewave`. Homebrew 6 asks you to trust third-party taps first with `brew trust ant-lib/tap`. The cask clears the quarantine flag after install.
 
 Prefer a manual install? Download `Hingewave-mac.zip` from [Releases](https://github.com/Ant-lib/hingewave/releases), unzip, and drag Hingewave.app into Applications. The app is not notarized, so on first open go to System Settings, Privacy and Security, and click Open Anyway.
 

@@ -261,8 +261,8 @@ Distribution without an Apple Developer account:
   macOS asks for the Screen Recording grant again after an update. The installer
   resets the stale grant first so the new prompt attaches cleanly. Updates are
   manual and rare, so this is the accepted cost of having no Developer ID.
-- Homebrew cask in `Ant-lib/homebrew-tap`, installed with `--no-quarantine`
-  documented.
+- Homebrew cask in `Ant-lib/homebrew-tap` with a postflight that clears the
+  quarantine flag (Homebrew 6 removed the `--no-quarantine` option).
 - Browser downloads are documented with the Privacy and Security "Open Anyway" path.
 - The in-app Preview and the `--demo` flag fold a generated picture, so the effect
   can be seen before Screen Recording is granted.
