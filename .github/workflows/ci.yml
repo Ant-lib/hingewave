@@ -87,6 +87,34 @@ jobs:
             android/build/render-check
             android/build/emulator-shots
 
+  windows:
+    name: Windows app
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Unit tests
+        run: dotnet test windows/Hingewave.Core.Tests --nologo
+      - name: Build
+        run: dotnet build windows/Hingewave.App -c Release --nologo
+      - name: Golden render check on WARP
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem windows/Hingewave.App/bin/Release -Recurse -Filter hingewave.exe | Select-Object -First 1
+          & $exe.FullName --render-check "$env:RUNNER_TEMP/render-check" --core core
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Publish single-file executables
+        shell: pwsh
+        run: pwsh windows/build.ps1 -SkipTests
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hingewave-windows
+          path: |
+            windows/build/hingewave-*.exe
+            windows/build/SHA256SUMS-windows.txt
+
   macos:
     name: macOS app
     runs-on: macos-15

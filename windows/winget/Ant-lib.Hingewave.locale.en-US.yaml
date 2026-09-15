@@ -1,0 +1,19 @@
+PackageIdentifier: Ant-lib.Hingewave
+PackageVersion: 0.1.0
+PackageLocale: en-US
+Publisher: Ant-lib
+PublisherUrl: https://github.com/Ant-lib
+PackageName: Hingewave
+PackageUrl: https://github.com/Ant-lib/hingewave
+License: MIT
+LicenseUrl: https://github.com/Ant-lib/hingewave/blob/main/LICENSE
+ShortDescription: The iPhone Duo fold animation for your laptop lid, driven by the best available lid angle source.
+Description: |-
+  Close the lid and the desktop stays anchored in space while the glass tilts over it, blurring and darkening from the hinge outward. Hingewave reads a hinge angle sensor when the laptop has one, the lid accelerometer on convertibles, or falls back to the lid switch with a timed transition. No network, no telemetry.
+Tags:
+  - animation
+  - laptop
+  - lid
+  - hinge
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0
