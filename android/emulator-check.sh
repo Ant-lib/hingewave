@@ -128,19 +128,24 @@ echo "  process: $("$ADB" shell pidof com.antlib.hingewave 2>/dev/null)"
 # Switching modes plays one splash; let it drain (5 s still plus 1.5 s) before the sweep.
 sleep 6
 "$ADB" exec-out screencap -p > "$OUT/splash-00-before.png"
-# A detent change triggers the ripple; the emulator animates the hinge so several
-# sensor events arrive, which keeps the water alive until the five second stillness.
+# A detent change triggers the ripple. Screenshots are taken on the device (fast)
+# with device timestamps, so they line up with the engine log, and pulled afterwards;
+# pulling PNGs over adb takes seconds and would otherwise skew the timing.
+"$ADB" shell rm -rf /data/local/tmp/hw-shots
+"$ADB" shell mkdir -p /data/local/tmp/hw-shots
+"$ADB" shell "date +%s.%N > /data/local/tmp/hw-shots/trigger.txt; setprop debug.hingewave.mark 1" >/dev/null 2>&1 || true
 "$ADB" emu sensor set hinge-angle0 90 >/dev/null
 i=0
-for delay in 0.3 0.5 0.6 1.0 3.0; do
+for delay in 0.3 0.7 1.0 1.5 2.5 4.0; do
   sleep "$delay"
   i=$((i + 1))
-  "$ADB" exec-out screencap -p > "$OUT/splash-$(printf '%02d' "$i").png"
-  echo "  splash frame $i -> $OUT/splash-$(printf '%02d' "$i").png"
+  "$ADB" shell "date +%s.%N >> /data/local/tmp/hw-shots/times.txt; screencap -p /data/local/tmp/hw-shots/splash-$(printf '%02d' "$i").png"
 done
-sleep 5
-"$ADB" exec-out screencap -p > "$OUT/splash-drained.png"
-echo "  drained -> $OUT/splash-drained.png"
+sleep 4
+"$ADB" shell "date +%s.%N >> /data/local/tmp/hw-shots/times.txt; screencap -p /data/local/tmp/hw-shots/splash-drained.png"
+"$ADB" pull /data/local/tmp/hw-shots/. "$OUT/" >/dev/null
+echo "  trigger sent at $(cat "$OUT/trigger.txt")"
+echo "  capture times:"; sed 's/^/    /' "$OUT/times.txt"
 "$ADB" shell am broadcast -a com.antlib.hingewave.DEBUG_SETTINGS -n com.antlib.hingewave/.DebugSettingsReceiver --es effect auto >/dev/null
 "$ADB" emu sensor set hinge-angle0 180 >/dev/null
 
