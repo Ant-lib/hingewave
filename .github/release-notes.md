@@ -1,4 +1,4 @@
-Hingewave 0.2.1. Downloads for all three platforms; the macOS build is now signed with one stable certificate so the Screen Recording grant survives updates, and it asks for that grant at first launch. Still not notarized.
+Hingewave 0.2.2. Splash mode now triggers on the first detent change after switching modes (a sensor baseline was only kept in Splash mode before). macOS builds signed with the stable certificate; not notarized.
 
 New in this release:
 
