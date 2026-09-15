@@ -7,7 +7,7 @@
 # until you allow it under System Settings, Privacy and Security.
 cask "hingewave" do
   version "0.1.0"
-  sha256 "__SHA256__"
+  sha256 "526e189f145752541a85861e804930b7ef87cd9dedd0ed6d878c1c031065aa7d"
 
   url "https://github.com/Ant-lib/hingewave/releases/download/v#{version}/Hingewave-mac.zip"
   name "Hingewave"
