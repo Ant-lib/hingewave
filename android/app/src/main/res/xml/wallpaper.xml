@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wallpaper xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/wallpaper_description"
+    android:settingsActivity="com.antlib.hingewave.ui.SettingsActivity"
+    android:showMetadataInPreview="true"
+    android:thumbnail="@mipmap/ic_launcher" />
