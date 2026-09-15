@@ -3,6 +3,7 @@ package com.antlib.hingewave
 import com.antlib.hingewave.core.DetentDetector
 import com.antlib.hingewave.core.EffectConfig
 import com.antlib.hingewave.core.PhoneMapping
+import com.antlib.hingewave.core.SplashTimeline
 import com.antlib.hingewave.core.Spring
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -89,6 +90,46 @@ class PhoneFixtureTest {
             val values = fx.getJSONArray("values")
             for (i in 0 until values.length()) d.feed(values.getDouble(i))
             assertEquals(file.name, fx.getBoolean("expectDetent"), d.isDetent)
+        }
+    }
+}
+
+class SplashFixtureTest {
+    @Test
+    fun splashTimelinesReplay() {
+        val files = File(CorePaths.core, "fixtures").listFiles()!!
+            .filter { it.name.startsWith("splash-") && it.name.endsWith(".json") }
+            .sortedBy { it.name }
+        assertTrue("expected splash fixtures", files.size >= 3)
+        for (file in files) {
+            val fx = JSONObject(file.readText())
+            val tol = fx.getJSONObject("tolerance").getDouble("value")
+            val events = fx.getJSONArray("events")
+            val pending = ArrayList<Pair<Double, String>>()
+            for (i in 0 until events.length()) {
+                val e = events.getJSONObject(i)
+                pending.add(e.getDouble("t") to e.getString("kind"))
+            }
+            pending.sortBy { it.first }
+            val tl = SplashTimeline()
+            val expect = fx.getJSONArray("expect")
+            for (i in 0 until expect.length()) {
+                val e = expect.getJSONObject(i)
+                val t = e.getDouble("t")
+                while (pending.isNotEmpty() && pending[0].first <= t) {
+                    val (et, kind) = pending.removeAt(0)
+                    when (kind) {
+                        "trigger" -> tl.trigger(et)
+                        "motion" -> tl.motion(et)
+                        "settle" -> tl.settle(et)
+                    }
+                }
+                val o = tl.frame(t)
+                assertEquals("${file.name} t=$t state", e.getString("state"), o.state.name.lowercase())
+                assertEquals("${file.name} t=$t front", e.getDouble("front"), o.front, tol)
+                assertEquals("${file.name} t=$t ring", e.getDouble("ring"), o.ring, tol)
+                assertEquals("${file.name} t=$t wet", e.getDouble("wet"), o.wet, tol)
+            }
         }
     }
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Debug builds only: lets the emulator check flip settings over adb with an
+             am broadcast of com.antlib.hingewave.DEBUG_SETTINGS carrying an "effect" extra. -->
+        <receiver
+            android:name=".DebugSettingsReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.antlib.hingewave.DEBUG_SETTINGS" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

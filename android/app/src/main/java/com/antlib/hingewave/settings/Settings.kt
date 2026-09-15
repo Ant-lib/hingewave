@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.antlib.hingewave.render.MovingSide
 
+/** Which effect the wallpaper plays. AUTO picks Splash on detent-only sensors and Fold otherwise. */
+enum class EffectMode { AUTO, FOLD, SPLASH }
+
 /** Small SharedPreferences wrapper shared by the wallpaper engine and the settings screen. */
 class Settings(context: Context) {
     val prefs: SharedPreferences = context.applicationContext.getSharedPreferences(NAME, Context.MODE_PRIVATE)
@@ -16,6 +19,10 @@ class Settings(context: Context) {
     var movingSide: MovingSide
         get() = if (prefs.getString(KEY_SIDE, MovingSide.RIGHT.name) == MovingSide.LEFT.name) MovingSide.LEFT else MovingSide.RIGHT
         set(value) = prefs.edit().putString(KEY_SIDE, value.name).apply()
+
+    var effectMode: EffectMode
+        get() = runCatching { EffectMode.valueOf(prefs.getString(KEY_EFFECT, EffectMode.AUTO.name)!!) }.getOrDefault(EffectMode.AUTO)
+        set(value) = prefs.edit().putString(KEY_EFFECT, value.name).apply()
 
     /** Inner panel angle at which the picture is fully frosted; NaN means use effect.json. */
     var calibratedClearStart: Double
@@ -44,6 +51,7 @@ class Settings(context: Context) {
         const val NAME = "hingewave"
         const val KEY_IMAGE = "imageUri"
         const val KEY_SIDE = "movingSide"
+        const val KEY_EFFECT = "effectMode"
         const val KEY_CLEAR_START = "calibratedClearStart"
         const val KEY_OBS_MIN = "observedMin"
         const val KEY_OBS_MAX = "observedMax"

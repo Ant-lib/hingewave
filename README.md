@@ -34,7 +34,7 @@ Download `hingewave-<version>.apk` from [Releases](https://github.com/Ant-lib/hi
 
 It is a live wallpaper, so it needs no accessibility service, no overlay permission and no screen capture. Only the wallpaper folds; icons stay sharp. On the inner screen the moving half folds about the centre line while the other half stays still; on the cover screen the whole panel frosts as the phone opens.
 
-Requirements: Android 13 or later and a foldable whose hinge sensor reports continuous angles to apps. The Galaxy Z Fold 8 and the Pixel Fold family do. The Galaxy Z Fold 7 and earlier, Z Flip 5 and 6, and the Z TriFold expose only 0, 90 and 180 degrees to third-party apps; Hingewave detects that and plays a timed transition instead, and says so in its settings screen.
+Requirements: Android 13 or later. The fold follows the hinge on foldables whose sensor reports continuous angles to apps: the Galaxy Z Fold 8 and the Pixel Fold family. The Galaxy Z Fold 7 and earlier, Z Flip 5 and 6, and the Z TriFold expose only 0, 90 and 180 degrees to third-party apps. Hingewave detects that and switches to **Splash**: a ripple leaves the hinge the moment the phone starts opening or closing, keeps breathing while you handle it, and drains away after five seconds without movement. Splash can also be picked by hand in the settings screen on any device.
 
 ### Windows
 

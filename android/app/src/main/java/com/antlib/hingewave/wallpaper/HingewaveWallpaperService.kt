@@ -1,19 +1,28 @@
 package com.antlib.hingewave.wallpaper
 
 import android.content.SharedPreferences
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.service.wallpaper.WallpaperService
 import android.view.Choreographer
 import android.view.SurfaceHolder
 import com.antlib.hingewave.core.EffectConfig
 import com.antlib.hingewave.core.PhoneMapping
+import com.antlib.hingewave.core.SplashTimeline
 import com.antlib.hingewave.core.Spring
 import com.antlib.hingewave.core.smoothstep
 import com.antlib.hingewave.render.FoldGeometry
 import com.antlib.hingewave.render.FoldPainter
 import com.antlib.hingewave.render.Panel
+import com.antlib.hingewave.render.SplashGeometry
+import com.antlib.hingewave.render.SplashPainter
 import com.antlib.hingewave.sensor.HingeAngleSource
+import com.antlib.hingewave.settings.EffectMode
 import com.antlib.hingewave.settings.Settings
 import kotlin.math.abs
+import kotlin.math.sqrt
 
 /**
  * Live wallpaper engine. Reads the hinge angle while visible, smooths it with the
@@ -39,9 +48,39 @@ class HingewaveWallpaperService : WallpaperService() {
         private var panel = Panel.INNER
         private var geometry = FoldGeometry.forPanel(Panel.INNER, settings.movingSide)
         private var painter: FoldPainter? = null
+        private var splashPainter: SplashPainter? = null
         private var visible = false
+        private var surfaceSeen = false
+
+        // Splash mode (detent-only sensors, or chosen in settings).
+        private val splash = SplashTimeline(config)
+        private var lastSensorValue = Double.NaN
+        private val sensorManager = getSystemService(SensorManager::class.java)
+        private val gyro: Sensor? = sensorManager?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        private var gyroRegistered = false
+        private val gyroListener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent) {
+                val v = event.values
+                val magnitude = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
+                if (magnitude > config.splash.motionThreshold && splash.isActive) {
+                    splash.motion(now())
+                }
+            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
+        }
 
         private val source = HingeAngleSource(this@HingewaveWallpaperService) { angle -> onAngle(angle) }
+
+        /** Same clock as Choreographer frame times. */
+        private fun now(): Double = System.nanoTime() / 1e9
+
+        /** True when the ripple should play instead of the fold. */
+        private val useSplash: Boolean
+            get() = when (settings.effectMode) {
+                EffectMode.SPLASH -> true
+                EffectMode.FOLD -> false
+                EffectMode.AUTO -> settings.detentOnly == true || !source.available
+            }
 
         override fun onCreate(surfaceHolder: SurfaceHolder) {
             super.onCreate(surfaceHolder)
@@ -53,9 +92,11 @@ class HingewaveWallpaperService : WallpaperService() {
         override fun onDestroy() {
             settings.prefs.unregisterOnSharedPreferenceChangeListener(this)
             source.stop()
+            stopGyro()
             choreographer.removeFrameCallback(this)
             painter?.recycle()
             painter = null
+            splashPainter = null
             super.onDestroy()
         }
 
@@ -63,9 +104,17 @@ class HingewaveWallpaperService : WallpaperService() {
             super.onSurfaceChanged(holder, format, w, h)
             width = w
             height = h
+            val previous = if (surfaceSeen) panel else null
             panel = Panel.fromSize(w, h)
+            surfaceSeen = true
             geometry = FoldGeometry.forPanel(panel, settings.movingSide)
             rebuildPainter()
+            // A different panel lit up: the phone is being opened or closed. The first
+            // surface also gets one splash, so setting the wallpaper shows the effect.
+            if (useSplash && !isPreview && previous != panel) {
+                splash.trigger(now())
+                requestFrame()
+            }
             draw()
         }
 
@@ -73,13 +122,27 @@ class HingewaveWallpaperService : WallpaperService() {
             visible = isVisible
             if (isVisible) {
                 source.start()
+                if (useSplash) startGyro()
                 requestFrame()
             } else {
                 source.stop()
+                stopGyro()
                 choreographer.removeFrameCallback(this)
                 frameScheduled = false
                 lastFrameNs = 0L
             }
+        }
+
+        private fun startGyro() {
+            val g = gyro ?: return
+            if (gyroRegistered) return
+            gyroRegistered = sensorManager.registerListener(gyroListener, g, SensorManager.SENSOR_DELAY_UI)
+        }
+
+        private fun stopGyro() {
+            if (!gyroRegistered) return
+            sensorManager.unregisterListener(gyroListener)
+            gyroRegistered = false
         }
 
         override fun onSharedPreferenceChanged(prefs: SharedPreferences, key: String?) {
@@ -87,6 +150,11 @@ class HingewaveWallpaperService : WallpaperService() {
                 Settings.KEY_IMAGE -> { rebuildPainter(); draw() }
                 Settings.KEY_SIDE -> { geometry = FoldGeometry.forPanel(panel, settings.movingSide); draw() }
                 Settings.KEY_CLEAR_START -> draw()
+                Settings.KEY_EFFECT -> {
+                    if (useSplash && visible) startGyro() else stopGyro()
+                    // A fresh choice shows itself once, so the change is visible immediately.
+                    if (useSplash && visible && !isPreview) { splash.trigger(now()); requestFrame() } else draw()
+                }
             }
         }
 
@@ -94,6 +162,15 @@ class HingewaveWallpaperService : WallpaperService() {
 
         private fun onAngle(angle: Double) {
             targetAngle = angle
+            if (useSplash) {
+                val t = now()
+                if (!lastSensorValue.isNaN() && angle != lastSensorValue) {
+                    splash.trigger(t)
+                    if (angle <= config.phone.deadZone || angle >= 180.0 - config.phone.deadZone) splash.settle(t)
+                }
+                lastSensorValue = angle
+                requestFrame()
+            }
             if (panel == Panel.INNER) {
                 if (!source.minSeen.isNaN()) settings.observedMin = source.minSeen
                 if (!source.maxSeen.isNaN()) settings.observedMax = source.maxSeen
@@ -120,6 +197,12 @@ class HingewaveWallpaperService : WallpaperService() {
         override fun doFrame(frameTimeNanos: Long) {
             frameScheduled = false
             if (!visible) return
+            if (useSplash) {
+                val out = splash.frame(frameTimeNanos / 1e9)
+                drawSplash(out)
+                if (splash.isActive) requestFrame()
+                return
+            }
             val dt = if (lastFrameNs == 0L) 1.0 / 60.0 else (frameTimeNanos - lastFrameNs) / 1e9
             lastFrameNs = frameTimeNanos
             val x = spring.step(targetAngle, dt)
@@ -128,6 +211,7 @@ class HingewaveWallpaperService : WallpaperService() {
         }
 
         private fun draw(angle: Double = spring.x) {
+            if (useSplash) { drawSplash(splash.frame(now())); return }
             val p = painter ?: return
             if (width == 0 || height == 0) return
             val holder = surfaceHolder
@@ -136,6 +220,18 @@ class HingewaveWallpaperService : WallpaperService() {
                 val (tilt, progress) = shape(angle)
                 val perpendicular = if (panel == Panel.INNER) width / 2 else width
                 p.draw(canvas, width, height, tilt, progress, geometry, perpendicular)
+            } finally {
+                holder.unlockCanvasAndPost(canvas)
+            }
+        }
+
+        private fun drawSplash(out: com.antlib.hingewave.core.SplashOutput) {
+            val p = splashPainter ?: return
+            if (width == 0 || height == 0) return
+            val holder = surfaceHolder
+            val canvas = try { holder.lockHardwareCanvas() } catch (_: Exception) { null } ?: return
+            try {
+                p.draw(canvas, width, height, SplashGeometry.hingeEdge(panel, settings.movingSide), SplashGeometry.hingePosition(panel), out)
             } finally {
                 holder.unlockCanvasAndPost(canvas)
             }
@@ -159,7 +255,9 @@ class HingewaveWallpaperService : WallpaperService() {
         private fun rebuildPainter() {
             if (width == 0 || height == 0) return
             painter?.recycle()
-            painter = FoldPainter(WallpaperImage.load(this@HingewaveWallpaperService, settings.imageUri, width, height), config)
+            val picture = WallpaperImage.load(this@HingewaveWallpaperService, settings.imageUri, width, height)
+            painter = FoldPainter(picture, config)
+            splashPainter = SplashPainter(picture, config)
         }
     }
 }

@@ -40,6 +40,16 @@ class PhoneConfig:
 
 
 @dataclass(frozen=True)
+class SplashConfig:
+    travel_seconds: float
+    rise_seconds: float
+    still_seconds: float
+    drain_seconds: float
+    swell_hz: float
+    motion_threshold: float
+
+
+@dataclass(frozen=True)
 class Config:
     eye_distance: float
     max_blur: float
@@ -49,11 +59,13 @@ class Config:
     clear_seconds: float
     laptop: LaptopConfig
     phone: PhoneConfig
+    splash: SplashConfig
 
 
 def config_from_dict(d: dict) -> Config:
     lp = d["laptop"]
     ph = d["phone"]
+    sp = d["splash"]
     return Config(
         eye_distance=float(d["eyeDistance"]),
         max_blur=float(d["maxBlur"]),
@@ -76,6 +88,14 @@ def config_from_dict(d: dict) -> Config:
                 frost_start=float(ph["cover"]["frostStart"]),
                 frost_end=float(ph["cover"]["frostEnd"]),
             ),
+        ),
+        splash=SplashConfig(
+            travel_seconds=float(sp["travelSeconds"]),
+            rise_seconds=float(sp["riseSeconds"]),
+            still_seconds=float(sp["stillSeconds"]),
+            drain_seconds=float(sp["drainSeconds"]),
+            swell_hz=float(sp["swellHz"]),
+            motion_threshold=float(sp["motionThreshold"]),
         ),
     )
 

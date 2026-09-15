@@ -20,5 +20,13 @@
       "frostStart": 6.0,
       "frostEnd": 26.0
     }
+  },
+  "splash": {
+    "travelSeconds": 1.2,
+    "riseSeconds": 0.25,
+    "stillSeconds": 5.0,
+    "drainSeconds": 1.5,
+    "swellHz": 0.4,
+    "motionThreshold": 0.3
   }
 }

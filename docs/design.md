@@ -119,6 +119,12 @@ starting point, not scripture.
 | `phone.inner.clearEnd` | 174 | Inner panel is fully clear at or above this angle |
 | `phone.cover.frostStart` | 6 | Cover panel starts frosting on open |
 | `phone.cover.frostEnd` | 26 | Cover panel is fully frosted |
+| `splash.travelSeconds` | 1.2 | Ripple front travel time from hinge to far edge |
+| `splash.riseSeconds` | 0.25 | Water rise time at a trigger |
+| `splash.stillSeconds` | 5.0 | Stillness before the water drains |
+| `splash.drainSeconds` | 1.5 | Drain duration |
+| `splash.swellHz` | 0.4 | Standing swell frequency while holding |
+| `splash.motionThreshold` | 0.3 | Gyroscope magnitude in rad/s that counts as movement |
 
 ## 3. Motion model
 
@@ -172,6 +178,30 @@ Span calibration: a live wallpaper only receives events while its panel is lit, 
 the inner panel lights part way through an unfold. The engine records the span of
 angles it actually observes; the settings screen offers that span as the effective
 `clearStart` with one button.
+
+### 3.3a Splash mode for detent-only foldables
+
+Galaxy Z Fold 7 and earlier, Z Flip 5 and 6 and the Z TriFold report only 0, 90
+and 180 to apps, so the fold cannot follow the hinge there. Splash mode replaces it:
+
+- Triggers: a different panel lighting up (the inner panel part way through an
+  opening, the cover when closing), or any change in the detent value. Reaching 0 or
+  180 is a settle.
+- Motion: the gyroscope above `splash.motionThreshold` rad/s counts as "still being
+  handled" and postpones the drain.
+- Timeline (`SplashTimeline`, fixtures `splash-*.json`): `idle -> splashing` on a
+  trigger; water rises over `riseSeconds`; the ripple front travels from the hinge to
+  the far edge in `travelSeconds`; then `holding` with a slow swell at `swellHz`. After
+  `stillSeconds` without trigger or motion, or after a settle once the front has
+  passed the far edge, `draining` scales the water to zero over `drainSeconds` and
+  the wallpaper is sharp again. A trigger while draining restarts the ripple from
+  the current water level so nothing pops.
+- Shader: a derivative-of-Gaussian refraction ring with a bright crest, a standing
+  swell behind it, a wet tint, and five droplets trailing the front. The inner panel
+  ripples from the centre crease both ways; the cover from its inner edge.
+- Selection: `effectMode` Auto (Splash when the detector says detent-only or no
+  sensor), Fold, or Splash. There is no golden image for the ripple; the timeline is
+  fixture-verified and the emulator sweep captures frames.
 
 ### 3.4 Windows tiers
 

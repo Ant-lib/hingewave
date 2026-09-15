@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.antlib.hingewave.render.MovingSide
 import com.antlib.hingewave.render.Panel
+import com.antlib.hingewave.settings.EffectMode
 import com.antlib.hingewave.settings.Settings
 import com.antlib.hingewave.wallpaper.HingewaveWallpaperService
 import com.antlib.hingewave.wallpaper.WallpaperImage
@@ -69,7 +70,9 @@ class SettingsActivity : ComponentActivity() {
         var panel by remember { mutableStateOf(Panel.INNER) }
         var angle by remember { mutableStateOf(150f) }
         var clearStart by remember { mutableStateOf(settings.calibratedClearStart) }
+        var effect by remember { mutableStateOf(settings.effectMode) }
         var preview by remember { mutableStateOf<PreviewView?>(null) }
+        val splashPreview = effect == EffectMode.SPLASH || (effect == EffectMode.AUTO && settings.detentOnly == true)
 
         val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri != null) {
@@ -111,12 +114,31 @@ class SettingsActivity : ComponentActivity() {
                     v.panel = panel
                     v.movingSide = side
                     v.clearStart = clearStart
+                    v.splashMode = splashPreview
                 },
                 modifier = Modifier.fillMaxWidth().aspectRatio(if (panel == Panel.INNER) 0.9f else 0.45f),
             )
 
-            Text("Preview angle: ${angle.toInt()} degrees", style = MaterialTheme.typography.labelLarge)
-            Slider(value = angle, onValueChange = { angle = it }, valueRange = 0f..180f)
+            Text("Effect", style = MaterialTheme.typography.labelLarge)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(selected = effect == EffectMode.AUTO, onClick = { effect = EffectMode.AUTO; settings.effectMode = effect }, label = { Text("Auto") })
+                FilterChip(selected = effect == EffectMode.FOLD, onClick = { effect = EffectMode.FOLD; settings.effectMode = effect }, label = { Text("Fold") })
+                FilterChip(selected = effect == EffectMode.SPLASH, onClick = { effect = EffectMode.SPLASH; settings.effectMode = effect }, label = { Text("Splash") })
+            }
+            Text(
+                if (splashPreview) "Splash: a ripple leaves the hinge whenever the phone starts opening or closing. It drains away after five seconds without movement. Made for foldables that only report 0, 90 and 180 degrees."
+                else "Fold: the moving half tilts, blurs and darkens with the real hinge angle. Auto picks Splash when the sensor only reports detents.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            if (splashPreview) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = { preview?.playSplash() }) { Text("Play splash") }
+                    OutlinedButton(onClick = { preview?.settleSplash() }) { Text("Reach detent") }
+                }
+            } else {
+                Text("Preview angle: ${angle.toInt()} degrees", style = MaterialTheme.typography.labelLarge)
+                Slider(value = angle, onValueChange = { angle = it }, valueRange = 0f..180f)
+            }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(selected = panel == Panel.INNER, onClick = { panel = Panel.INNER }, label = { Text("Inner screen") })

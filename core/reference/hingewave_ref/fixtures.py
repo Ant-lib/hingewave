@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .config import CORE_DIR, Config, load_config
 from .motion import DetentDetector, LaptopMotionModel, PhoneMapping
+from .splash import SplashTimeline
 
 FIXTURES_DIR = CORE_DIR / "fixtures"
 DT = 0.02
@@ -65,6 +66,35 @@ DETENT_TRACES = {
 }
 
 
+# Splash timelines: a list of (t, event) and the frame times to check.
+SPLASH_TRACES = {
+    "splash-open-and-hold": ([(0.5, "trigger"), (2.0, "motion"), (3.0, "motion")], [0.0, 0.6, 1.0, 1.7, 2.5, 4.0, 7.9, 8.1, 8.8, 9.7]),
+    "splash-open-to-flat": ([(0.0, "trigger"), (0.4, "settle")], [0.2, 0.8, 1.19, 1.25, 2.0, 2.8]),
+    "splash-retrigger-while-draining": ([(0.0, "trigger"), (5.75, "trigger")], [4.9, 5.2, 5.75, 5.8, 6.5, 11.0, 12.5]),
+}
+
+
+def build_splash_fixtures(cfg: Config) -> dict[str, dict]:
+    out: dict[str, dict] = {}
+    for name, (events, frames) in SPLASH_TRACES.items():
+        tl = SplashTimeline(cfg)
+        pending = sorted(events)
+        expect = []
+        for t in sorted(frames):
+            while pending and pending[0][0] <= t:
+                et, kind = pending.pop(0)
+                getattr(tl, kind)(et)
+            o = tl.frame(t)
+            expect.append({"t": t, "state": o.state, "front": round(o.front, 4), "ring": round(o.ring, 4), "wet": round(o.wet, 4)})
+        out[name] = {
+            "platform": "splash",
+            "events": [{"t": t, "kind": k} for t, k in events],
+            "expect": expect,
+            "tolerance": {"value": 0.02},
+        }
+    return out
+
+
 def build_fixtures(cfg: Config | None = None) -> dict[str, dict]:
     cfg = cfg or load_config()
     out: dict[str, dict] = {}
@@ -104,6 +134,7 @@ def build_fixtures(cfg: Config | None = None) -> dict[str, dict]:
             d.feed(v)
         assert d.is_detent is expected, name
         out[name] = {"platform": "phone-detent", "values": values, "expectDetent": expected}
+    out.update(build_splash_fixtures(cfg))
     return out
 
 

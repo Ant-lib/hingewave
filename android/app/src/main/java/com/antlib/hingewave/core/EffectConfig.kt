@@ -11,6 +11,15 @@ data class CoverConfig(val frostStart: Double, val frostEnd: Double)
 
 data class PhoneConfig(val deadZone: Double, val inner: InnerConfig, val cover: CoverConfig)
 
+data class SplashConfig(
+    val travelSeconds: Double,
+    val riseSeconds: Double,
+    val stillSeconds: Double,
+    val drainSeconds: Double,
+    val swellHz: Double,
+    val motionThreshold: Double,
+)
+
 data class EffectConfig(
     val eyeDistance: Double,
     val maxBlur: Double,
@@ -20,6 +29,7 @@ data class EffectConfig(
     val clearSeconds: Double,
     val laptop: LaptopConfig,
     val phone: PhoneConfig,
+    val splash: SplashConfig,
 ) {
     companion object {
         /** Values copied from core/effect.json. Change them there first, then here. */
@@ -36,6 +46,14 @@ data class EffectConfig(
                 inner = InnerConfig(clearStart = 100.0, clearEnd = 174.0),
                 cover = CoverConfig(frostStart = 6.0, frostEnd = 26.0),
             ),
+            splash = SplashConfig(
+                travelSeconds = 1.2,
+                riseSeconds = 0.25,
+                stillSeconds = 5.0,
+                drainSeconds = 1.5,
+                swellHz = 0.4,
+                motionThreshold = 0.3,
+            ),
         )
 
         fun fromJson(text: String): EffectConfig {
@@ -44,6 +62,7 @@ data class EffectConfig(
             val ph = o.getJSONObject("phone")
             val inner = ph.getJSONObject("inner")
             val cover = ph.getJSONObject("cover")
+            val sp = o.getJSONObject("splash")
             return EffectConfig(
                 eyeDistance = o.getDouble("eyeDistance"),
                 maxBlur = o.getDouble("maxBlur"),
@@ -56,6 +75,14 @@ data class EffectConfig(
                     deadZone = ph.getDouble("deadZone"),
                     inner = InnerConfig(inner.getDouble("clearStart"), inner.getDouble("clearEnd")),
                     cover = CoverConfig(cover.getDouble("frostStart"), cover.getDouble("frostEnd")),
+                ),
+                splash = SplashConfig(
+                    travelSeconds = sp.getDouble("travelSeconds"),
+                    riseSeconds = sp.getDouble("riseSeconds"),
+                    stillSeconds = sp.getDouble("stillSeconds"),
+                    drainSeconds = sp.getDouble("drainSeconds"),
+                    swellHz = sp.getDouble("swellHz"),
+                    motionThreshold = sp.getDouble("motionThreshold"),
                 ),
             )
         }

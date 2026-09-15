@@ -1,0 +1,60 @@
+{
+ "platform": "splash",
+ "events": [
+  {
+   "t": 0.0,
+   "kind": "trigger"
+  },
+  {
+   "t": 0.4,
+   "kind": "settle"
+  }
+ ],
+ "expect": [
+  {
+   "t": 0.2,
+   "state": "splashing",
+   "front": 0.1667,
+   "ring": 1.0,
+   "wet": 0.8
+  },
+  {
+   "t": 0.8,
+   "state": "splashing",
+   "front": 0.6667,
+   "ring": 1.0,
+   "wet": 1.0
+  },
+  {
+   "t": 1.19,
+   "state": "splashing",
+   "front": 0.9917,
+   "ring": 1.0,
+   "wet": 1.0
+  },
+  {
+   "t": 1.25,
+   "state": "draining",
+   "front": 1.0417,
+   "ring": 0.92,
+   "wet": 1.0
+  },
+  {
+   "t": 2.0,
+   "state": "draining",
+   "front": 1.6667,
+   "ring": 0.2636,
+   "wet": 0.5
+  },
+  {
+   "t": 2.8,
+   "state": "idle",
+   "front": 0.0,
+   "ring": 0.0,
+   "wet": 0.0
+  }
+ ],
+ "tolerance": {
+  "value": 0.02
+ }
+}
