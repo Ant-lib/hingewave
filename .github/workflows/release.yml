@@ -1,0 +1,37 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  macos:
+    name: Build and publish macOS release
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag matches VERSION
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(tr -d '[:space:]' < VERSION)"
+          [ "$tag" = "$version" ] || { echo "tag $tag does not match VERSION $version" >&2; exit 1; }
+      - name: Unit tests
+        working-directory: macos
+        run: swift test
+      - name: Build universal app and zip
+        working-directory: macos
+        run: ./build.sh --universal --zip
+      - name: Golden render check
+        run: macos/build/Hingewave.app/Contents/MacOS/Hingewave --render-check "$RUNNER_TEMP/render-check" --core core
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat macos/build/SHA256SUMS.txt
+          gh release create "$GITHUB_REF_NAME" \
+            --title "Hingewave $GITHUB_REF_NAME" \
+            --notes-file .github/release-notes.md \
+            macos/build/Hingewave-mac.zip macos/build/SHA256SUMS.txt

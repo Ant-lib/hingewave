@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  style:
+    name: Repository rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No long dashes in text files
+        run: |
+          if git ls-files -z | grep -zvE '\.(png|jks|p12|icns|zip)$' | xargs -0 grep -nP '[\x{2013}\x{2014}]' ; then
+            echo "long dashes found; use plain hyphens" >&2
+            exit 1
+          fi
+          echo "no long dashes"
+
+  core:
+    name: Reference implementation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -e "core/reference[test]"
+      - name: Test
+        run: python -m pytest core/reference -q
+      - name: Committed fixtures and goldens are current
+        working-directory: core/reference
+        run: python -m hingewave_ref check
+
+  macos:
+    name: macOS app
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: swift --version
+      - name: Unit tests
+        working-directory: macos
+        run: swift test
+      - name: Build app bundle
+        working-directory: macos
+        run: ./build.sh --universal --zip
+      - name: Golden render check
+        run: |
+          macos/build/Hingewave.app/Contents/MacOS/Hingewave --render-check "$RUNNER_TEMP/render-check" --core core
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Hingewave-mac
+          path: |
+            macos/build/Hingewave-mac.zip
+            macos/build/SHA256SUMS.txt

@@ -164,8 +164,8 @@ Inner panel: `progress = 1 - smoothstep((angle - clearStart) / (clearEnd -
 clearStart))`. Cover panel: `progress = smoothstep((angle - frostStart) / (frostEnd
 - frostStart))`. Angles within `deadZone` of 0 or 180 count as settled.
 
-Detent detection: if the first twelve distinct sensor values are all in `{0, 90,
-180}`, the sensor is detent-only. The wallpaper then plays a fixed `clearSeconds`
+Detent detection: if the first twelve sensor events all carry values in `{0, 90,
+180}`, the sensor is detent-only; any other value decides continuous at once. The wallpaper then plays a fixed `clearSeconds`
 transition on each change and reports "detent-only sensor" in its settings screen.
 
 Span calibration: a live wallpaper only receives events while its panel is lit, and
@@ -253,14 +253,19 @@ to 120 sweep without a sensor, `--preview <deg>` shows one angle, `--render-chec
 
 Distribution without an Apple Developer account:
 
-- `install.sh` fetches the release zip with curl, verifies SHA-256, creates a
-  self-signed code-signing identity named "Hingewave Local" in the login keychain on
-  first run, re-signs the app with it, moves it to `/Applications` and opens it.
-  Curl downloads carry no quarantine flag, so Gatekeeper does not block; the stable
-  local identity keeps the Screen Recording grant across updates.
+- `install.sh` fetches the release zip with curl, verifies SHA-256, replaces
+  `/Applications/Hingewave.app`, clears the quarantine flag and opens the app. It
+  touches nothing else: no keychain, no certificates. A curl-pipe-bash script that
+  imports signing keys would cost more trust than it saves.
+- Releases are ad-hoc signed, so the code identity changes with every release and
+  macOS asks for the Screen Recording grant again after an update. The installer
+  resets the stale grant first so the new prompt attaches cleanly. Updates are
+  manual and rare, so this is the accepted cost of having no Developer ID.
 - Homebrew cask in `Ant-lib/homebrew-tap`, installed with `--no-quarantine`
-  documented. The cask runs the same re-sign step as a postflight.
+  documented.
 - Browser downloads are documented with the Privacy and Security "Open Anyway" path.
+- The in-app Preview and the `--demo` flag fold a generated picture, so the effect
+  can be seen before Screen Recording is granted.
 
 ## 6. Android
 
