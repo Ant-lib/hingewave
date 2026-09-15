@@ -22,6 +22,10 @@ echo "== render check"
 echo "== install"
 ./gradlew :app:assembleDebug -q --console=plain
 "$ADB" install -r app/build/outputs/apk/debug/app-debug.apk >/dev/null
+# Let the launcher settle after the install; an "isn't responding" dialog would derail the chooser.
+sleep 10
+"$ADB" shell input keyevent KEYCODE_HOME
+sleep 3
 
 # Dumps the UI and taps the centre of the first clickable node whose text or
 # description matches the regex. Prints 1 when tapped, 0 when nothing matched.
@@ -71,9 +75,14 @@ for attempt in 1 2 3 4; do
   "$ADB" shell am start -W -a android.service.wallpaper.CHANGE_LIVE_WALLPAPER \
     --ecn android.service.wallpaper.extra.LIVE_WALLPAPER_COMPONENT com.antlib.hingewave/.wallpaper.HingewaveWallpaperService >/dev/null
   sleep 4
-  if [ "$(tap_label "isn't responding|is not responding")" = 1 ] || [ "$(tap_label '^Wait$')" = 1 ]; then
-    echo "  dismissed a not-responding dialog (attempt $attempt)"
-    sleep 4
+  # The launcher can raise "isn't responding" on a slow runner; Wait keeps it alive.
+  # Tap the button, never the title (the title is not clickable).
+  if [ "$(tap_label '^Wait ?$')" = 1 ]; then
+    echo "  pressed Wait on a not-responding dialog (attempt $attempt)"
+    sleep 6
+  elif [ "$(tap_label '^Close app ?$')" = 1 ]; then
+    echo "  closed a not-responding app (attempt $attempt)"
+    sleep 6
   fi
   if [ "$(tap_label 'set wallpaper|apply')" = 1 ]; then opened=1; break; fi
   echo "  chooser not ready (attempt $attempt)"
