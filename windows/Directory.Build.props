@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <HingewaveVersion>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)../VERSION').Trim())</HingewaveVersion>
+    <Version>$(HingewaveVersion)</Version>
+    <Authors>Ant-lib</Authors>
+    <Product>Hingewave</Product>
+    <Copyright>MIT license. Not affiliated with Apple, Microsoft or Lenovo.</Copyright>
+  </PropertyGroup>
+</Project>

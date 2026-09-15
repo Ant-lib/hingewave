@@ -27,3 +27,9 @@ core/.venv/
 core/__pycache__/
 core/**/__pycache__/
 core/out/
+
+# Windows
+windows/**/bin/
+windows/**/obj/
+windows/.vs/
+windows/build/

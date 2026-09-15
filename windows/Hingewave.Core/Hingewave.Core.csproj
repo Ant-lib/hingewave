@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Hingewave.Core</RootNamespace>
+    <Description>Shared effect configuration and motion model for Hingewave. Portable, no Windows dependencies.</Description>
+  </PropertyGroup>
+</Project>
