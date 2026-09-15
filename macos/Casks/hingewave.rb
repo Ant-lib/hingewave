@@ -21,7 +21,7 @@ cask "hingewave" do
 
   postflight_steps do
     run "/usr/bin/xattr",
-        args:         ["-dr", "com.apple.quarantine", '#{appdir}/Hingewave.app'],
+        args:         ["-dr", "com.apple.quarantine", "{{appdir}}/Hingewave.app"],
         must_succeed: false
   end
 
