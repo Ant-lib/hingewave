@@ -64,10 +64,22 @@ PY
 
 "$ADB" logcat -c 2>/dev/null || true
 echo "== set live wallpaper"
-"$ADB" shell am start -W -a android.service.wallpaper.CHANGE_LIVE_WALLPAPER \
-  --ecn android.service.wallpaper.extra.LIVE_WALLPAPER_COMPONENT com.antlib.hingewave/.wallpaper.HingewaveWallpaperService >/dev/null
-sleep 3
-if [ "$(tap_label 'set wallpaper|apply')" != 1 ]; then
+# The emulator can be slow right after an install and show "isn't responding"
+# dialogs; dismiss them with Wait and retry the chooser a few times.
+opened=0
+for attempt in 1 2 3 4; do
+  "$ADB" shell am start -W -a android.service.wallpaper.CHANGE_LIVE_WALLPAPER \
+    --ecn android.service.wallpaper.extra.LIVE_WALLPAPER_COMPONENT com.antlib.hingewave/.wallpaper.HingewaveWallpaperService >/dev/null
+  sleep 4
+  if [ "$(tap_label "isn't responding|is not responding")" = 1 ] || [ "$(tap_label '^Wait$')" = 1 ]; then
+    echo "  dismissed a not-responding dialog (attempt $attempt)"
+    sleep 4
+  fi
+  if [ "$(tap_label 'set wallpaper|apply')" = 1 ]; then opened=1; break; fi
+  echo "  chooser not ready (attempt $attempt)"
+  sleep 3
+done
+if [ "$opened" != 1 ]; then
   echo "could not find the Set wallpaper button; UI dump saved to $OUT/ui.xml" >&2
   "$ADB" exec-out screencap -p > "$OUT/chooser.png"
   exit 1
