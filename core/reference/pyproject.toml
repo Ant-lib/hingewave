@@ -1,0 +1,19 @@
+[project]
+name = "hingewave-ref"
+version = "0.1.0"
+description = "Reference implementation of the Hingewave effect. Source of truth for fixtures and golden images."
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.26", "pillow>=10"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["hingewave_ref*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

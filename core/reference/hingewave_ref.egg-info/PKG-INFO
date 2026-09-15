@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: hingewave-ref
+Version: 0.1.0
+Summary: Reference implementation of the Hingewave effect. Source of truth for fixtures and golden images.
+Requires-Python: >=3.10
+Requires-Dist: numpy>=1.26
+Requires-Dist: pillow>=10
+Provides-Extra: test
+Requires-Dist: pytest>=8; extra == "test"

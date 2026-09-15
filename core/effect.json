@@ -1,0 +1,24 @@
+{
+  "eyeDistance": 2.0,
+  "maxBlur": 0.036,
+  "darkenGain": 2.0,
+  "springHz": 6.0,
+  "stillSeconds": 2.0,
+  "clearSeconds": 0.6,
+  "laptop": {
+    "startAngle": 90.0,
+    "endAngle": 8.0,
+    "armVelocity": 15.0
+  },
+  "phone": {
+    "deadZone": 6.0,
+    "inner": {
+      "clearStart": 100.0,
+      "clearEnd": 174.0
+    },
+    "cover": {
+      "frostStart": 6.0,
+      "frostEnd": 26.0
+    }
+  }
+}
