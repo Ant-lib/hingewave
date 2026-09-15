@@ -109,3 +109,74 @@ class ShaderCompileTest {
         android.graphics.RuntimeShader(com.antlib.hingewave.render.SplashShader.source)
     }
 }
+
+/**
+ * Renders the splash shader offscreen at fixed timeline values and checks that it
+ * changes the picture: a travelling ring, and the wet state after the ring has
+ * passed. Outputs are saved next to the fold renders for the CI artifact.
+ */
+@RunWith(AndroidJUnit4::class)
+class SplashRenderTest {
+    private val coreDir = File("/data/local/tmp/hingewave-core")
+
+    @Test
+    fun splashChangesThePicture() {
+        val card = BitmapFactory.decodeFile(File(coreDir, "test-card.png").path)
+        val width = card.width
+        val height = card.height
+        val outDir = File(InstrumentationRegistry.getInstrumentation().targetContext.filesDir, "render-check").apply { mkdirs() }
+        val painter = com.antlib.hingewave.render.SplashPainter(card)
+        val cases = listOf(
+            "splash-ring.png" to com.antlib.hingewave.core.SplashOutput(com.antlib.hingewave.core.SplashState.SPLASHING, 0.5, 0.4, 1.0, 1.0),
+            "splash-wet.png" to com.antlib.hingewave.core.SplashOutput(com.antlib.hingewave.core.SplashState.HOLDING, 2.4, 2.0, 0.13, 1.0),
+        )
+        val report = StringBuilder()
+        var failures = 0
+        for ((name, frame) in cases) {
+            val out = renderHardware(width, height) { canvas ->
+                painter.draw(canvas, width, height, com.antlib.hingewave.render.FoldGeometry.LEFT, 0.5f, frame)
+            }
+            File(outDir, name).outputStream().use { out.compress(Bitmap.CompressFormat.PNG, 100, it) }
+            val diff = meanAbsDiff(out, card)
+            val ok = diff > 2.0
+            if (!ok) failures++
+            report.append(String.format("%-16s front %.2f wet %.2f mean abs diff %6.2f %s\n", name, frame.front, frame.wet, diff, if (ok) "ok" else "FAIL"))
+        }
+        File(outDir, "splash-report.txt").writeText(report.toString())
+        assertTrue("splash render check failed:\n$report", failures == 0)
+    }
+
+    private fun renderHardware(width: Int, height: Int, draw: (Canvas) -> Unit): Bitmap {
+        val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1,
+            HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_GPU_COLOR_OUTPUT)
+        val renderer = HardwareRenderer()
+        val node = RenderNode("splash").apply { setPosition(0, 0, width, height) }
+        val canvas = node.beginRecording()
+        draw(canvas)
+        node.endRecording()
+        renderer.setContentRoot(node)
+        renderer.setSurface(reader.surface)
+        renderer.createRenderRequest().setWaitForPresent(true).syncAndDraw()
+        val image = reader.acquireNextImage()
+        val hw = Bitmap.wrapHardwareBuffer(image.hardwareBuffer!!, null)!!
+        val result = hw.copy(Bitmap.Config.ARGB_8888, false)
+        image.close()
+        renderer.destroy()
+        reader.close()
+        return result
+    }
+
+    private fun meanAbsDiff(a: Bitmap, b: Bitmap): Double {
+        val w = a.width
+        val h = a.height
+        val pa = IntArray(w * h).also { a.getPixels(it, 0, w, 0, 0, w, h) }
+        val pb = IntArray(w * h).also { b.getPixels(it, 0, w, 0, 0, w, h) }
+        var sum = 0.0
+        for (i in pa.indices) {
+            for (shift in intArrayOf(16, 8, 0)) {
+                sum += Math.abs(((pa[i] shr shift) and 0xff) - ((pb[i] shr shift) and 0xff))
+            }
+        }
+        return sum / (pa.size * 3)
+    }
+}
