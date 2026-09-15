@@ -4,7 +4,7 @@
 #   brew tap ant-lib/tap        (Homebrew 6 asks you to trust third-party taps: brew trust ant-lib/tap)
 #   brew install --cask ant-lib/tap/hingewave
 #
-# The app is ad-hoc signed and not notarized. The postflight clears the quarantine
+# The app is ad-hoc signed and not notarized. The postflight step clears the quarantine
 # flag so the first launch is not blocked; Screen Recording still has to be granted.
 cask "hingewave" do
   version "0.1.1"
@@ -19,10 +19,10 @@ cask "hingewave" do
 
   app "Hingewave.app"
 
-  postflight do
-    system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/Hingewave.app"],
-                   must_succeed: false
+  postflight_steps do
+    run "/usr/bin/xattr",
+        args:         ["-dr", "com.apple.quarantine", '#{appdir}/Hingewave.app'],
+        must_succeed: false
   end
 
   uninstall quit: "com.antlib.hingewave"
