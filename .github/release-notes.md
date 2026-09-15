@@ -1,4 +1,4 @@
-Hingewave 0.2.0. Downloads for all three platforms, universal Mac binary, ad-hoc signed, not notarized.
+Hingewave 0.2.1. Downloads for all three platforms; the macOS build is now signed with one stable certificate so the Screen Recording grant survives updates, and it asks for that grant at first launch. Still not notarized.
 
 New in this release:
 
