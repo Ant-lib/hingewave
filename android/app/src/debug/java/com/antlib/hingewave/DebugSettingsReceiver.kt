@@ -11,8 +11,12 @@ import com.antlib.hingewave.settings.Settings
 class DebugSettingsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val settings = Settings(context)
+        android.util.Log.d("Hingewave", "debug settings broadcast pid=${android.os.Process.myPid()} extras=${intent.extras?.keySet()?.joinToString()}")
         intent.getStringExtra("effect")?.let { value ->
-            runCatching { EffectMode.valueOf(value.uppercase()) }.getOrNull()?.let { settings.effectMode = it }
+            runCatching { EffectMode.valueOf(value.uppercase()) }.getOrNull()?.let {
+                settings.effectMode = it
+                android.util.Log.d("Hingewave", "effect mode set to $it")
+            }
         }
         intent.getStringExtra("side")?.let { value ->
             runCatching { MovingSide.valueOf(value.uppercase()) }.getOrNull()?.let { settings.movingSide = it }

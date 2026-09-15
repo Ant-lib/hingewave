@@ -121,9 +121,12 @@ for deg in 180 150 120 100 80 60 40 30 60 120 180; do
   i=$((i + 1))
 done
 echo "== splash mode"
-"$ADB" shell am broadcast -a com.antlib.hingewave.DEBUG_SETTINGS -n com.antlib.hingewave/.DebugSettingsReceiver --es effect splash >/dev/null
+"$ADB" shell am broadcast -a com.antlib.hingewave.DEBUG_SETTINGS -n com.antlib.hingewave/.DebugSettingsReceiver --es effect splash | tail -1
+sleep 2
+echo "  prefs: $("$ADB" shell run-as com.antlib.hingewave cat shared_prefs/hingewave.xml 2>/dev/null | tr -d '\n' | grep -o '<string name="effectMode">[A-Z]*</string>')"
+echo "  process: $("$ADB" shell pidof com.antlib.hingewave 2>/dev/null)"
 # Switching modes plays one splash; let it drain (5 s still plus 1.5 s) before the sweep.
-sleep 8
+sleep 6
 "$ADB" exec-out screencap -p > "$OUT/splash-00-before.png"
 # A detent change triggers the ripple; the emulator animates the hinge so several
 # sensor events arrive, which keeps the water alive until the five second stillness.

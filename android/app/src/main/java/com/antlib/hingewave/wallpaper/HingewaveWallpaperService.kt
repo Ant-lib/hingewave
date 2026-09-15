@@ -87,6 +87,7 @@ class HingewaveWallpaperService : WallpaperService() {
             settings.sensorAvailable = source.available
             settings.prefs.registerOnSharedPreferenceChangeListener(this)
             spring.reset(targetAngle)
+            android.util.Log.d("Hingewave", "engine created pid=${android.os.Process.myPid()} sensor=${source.available} mode=${settings.effectMode}")
         }
 
         override fun onDestroy() {
@@ -151,6 +152,7 @@ class HingewaveWallpaperService : WallpaperService() {
                 Settings.KEY_SIDE -> { geometry = FoldGeometry.forPanel(panel, settings.movingSide); draw() }
                 Settings.KEY_CLEAR_START -> draw()
                 Settings.KEY_EFFECT -> {
+                    android.util.Log.d("Hingewave", "effect mode changed to ${settings.effectMode} splash=$useSplash visible=$visible")
                     if (useSplash && visible) startGyro() else stopGyro()
                     // A fresh choice shows itself once, so the change is visible immediately.
                     if (useSplash && visible && !isPreview) { splash.trigger(now()); requestFrame() } else draw()
