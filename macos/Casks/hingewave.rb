@@ -7,8 +7,8 @@
 # The app is ad-hoc signed and not notarized. The postflight step clears the quarantine
 # flag so the first launch is not blocked; Screen Recording still has to be granted.
 cask "hingewave" do
-  version "0.1.1"
-  sha256 "4d1cc5b3d875b7e80dd8b72c45a70b28a32e9cac734bdb92b9595e247ebdb3b1"
+  version "0.2.0"
+  sha256 "__SHA256__"
 
   url "https://github.com/Ant-lib/hingewave/releases/download/v#{version}/Hingewave-mac.zip"
   name "Hingewave"

@@ -1,14 +1,14 @@
 PackageIdentifier: Ant-lib.Hingewave
-PackageVersion: 0.1.1
+PackageVersion: 0.2.0
 InstallerType: portable
 Commands:
   - hingewave
 Installers:
   - Architecture: x64
-    InstallerUrl: https://github.com/Ant-lib/hingewave/releases/download/v0.1.1/hingewave-x64.exe
-    InstallerSha256: 3fd1bb98e51483369fbc9a7af1ed5509f58cd33a5fd32b4cd7fa0b17ab6e25ad
+    InstallerUrl: https://github.com/Ant-lib/hingewave/releases/download/v0.2.0/hingewave-x64.exe
+    InstallerSha256: __SHA256__
   - Architecture: arm64
-    InstallerUrl: https://github.com/Ant-lib/hingewave/releases/download/v0.1.1/hingewave-arm64.exe
-    InstallerSha256: 22b5b38c12f8b8ab62c52e27dd3dd3cc7e26a7b9a233cbd8daa549082cd940c7
+    InstallerUrl: https://github.com/Ant-lib/hingewave/releases/download/v0.2.0/hingewave-arm64.exe
+    InstallerSha256: __SHA256__
 ManifestType: installer
 ManifestVersion: 1.6.0

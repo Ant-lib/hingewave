@@ -1,7 +1,7 @@
 # Version manifest for the winget-pkgs submission. Filled in at release time by release.yml
 # (installer SHA-256 values) and submitted with the winget-create tool.
 PackageIdentifier: Ant-lib.Hingewave
-PackageVersion: 0.1.1
+PackageVersion: 0.2.0
 DefaultLocale: en-US
 ManifestType: version
 ManifestVersion: 1.6.0
