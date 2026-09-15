@@ -164,18 +164,21 @@ class HingewaveWallpaperService : WallpaperService() {
 
         private fun onAngle(angle: Double) {
             targetAngle = angle
+            // The baseline is kept in every mode, so the first detent change after Auto
+            // flips to Splash (or after a manual switch) is seen as a change, not a baseline.
+            val previous = lastSensorValue
+            lastSensorValue = angle
             if (useSplash) {
                 val t = now()
                 val settled = angle <= config.phone.deadZone || angle >= 180.0 - config.phone.deadZone
-                val wasSettled = !lastSensorValue.isNaN() &&
-                    (lastSensorValue <= config.phone.deadZone || lastSensorValue >= 180.0 - config.phone.deadZone)
-                if (!lastSensorValue.isNaN() && angle != lastSensorValue) {
+                val wasSettled = !previous.isNaN() &&
+                    (previous <= config.phone.deadZone || previous >= 180.0 - config.phone.deadZone)
+                if (!previous.isNaN() && angle != previous) {
                     splash.trigger(t)
                     // Only arriving at a detent settles; readings that merely stay near one do not.
                     if (settled && !wasSettled) splash.settle(t)
                     android.util.Log.d("Hingewave", "splash trigger angle=$angle settled=$settled state=${splash.state}")
                 }
-                lastSensorValue = angle
                 requestFrame()
             }
             if (panel == Panel.INNER) {
