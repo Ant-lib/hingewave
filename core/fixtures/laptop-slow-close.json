@@ -1049,134 +1049,134 @@
   },
   {
    "t": 1.2,
-   "state": "idle",
-   "tilt": 0.0,
-   "progress": 0.0,
-   "capture": false
+   "state": "armed",
+   "tilt": 5.7574,
+   "progress": 0.0092,
+   "capture": true
   },
   {
    "t": 1.4,
-   "state": "idle",
-   "tilt": 0.0,
-   "progress": 0.0,
-   "capture": false
+   "state": "active",
+   "tilt": 13.0873,
+   "progress": 0.0452,
+   "capture": true
   },
   {
    "t": 1.6,
-   "state": "armed",
-   "tilt": 0.4206,
-   "progress": 0.0001,
+   "state": "active",
+   "tilt": 20.4206,
+   "progress": 0.1042,
    "capture": true
   },
   {
    "t": 1.8,
    "state": "active",
-   "tilt": 7.7539,
-   "progress": 0.0251,
+   "tilt": 27.7539,
+   "progress": 0.1818,
    "capture": true
   },
   {
    "t": 2.0,
    "state": "active",
-   "tilt": 15.0873,
-   "progress": 0.0891,
+   "tilt": 35.0873,
+   "progress": 0.2736,
    "capture": true
   },
   {
    "t": 2.2,
    "state": "active",
-   "tilt": 22.4206,
-   "progress": 0.1834,
+   "tilt": 42.4206,
+   "progress": 0.375,
    "capture": true
   },
   {
    "t": 2.4,
    "state": "active",
-   "tilt": 29.7539,
-   "progress": 0.2994,
+   "tilt": 49.7539,
+   "progress": 0.4817,
    "capture": true
   },
   {
    "t": 2.6,
    "state": "active",
-   "tilt": 37.0873,
-   "progress": 0.4286,
+   "tilt": 57.0873,
+   "progress": 0.5891,
    "capture": true
   },
   {
    "t": 2.8,
    "state": "active",
-   "tilt": 44.4206,
-   "progress": 0.5624,
+   "tilt": 64.4206,
+   "progress": 0.6928,
    "capture": true
   },
   {
    "t": 3.0,
    "state": "active",
-   "tilt": 51.7539,
-   "progress": 0.6922,
+   "tilt": 71.7539,
+   "progress": 0.7884,
    "capture": true
   },
   {
    "t": 3.2,
    "state": "active",
-   "tilt": 59.0873,
-   "progress": 0.8094,
+   "tilt": 79.0873,
+   "progress": 0.8713,
    "capture": true
   },
   {
    "t": 3.4,
    "state": "active",
-   "tilt": 66.4206,
-   "progress": 0.9054,
+   "tilt": 86.4206,
+   "progress": 0.9371,
    "capture": true
   },
   {
    "t": 3.6,
    "state": "active",
-   "tilt": 73.7539,
-   "progress": 0.9717,
+   "tilt": 93.7539,
+   "progress": 0.9814,
    "capture": true
   },
   {
    "t": 3.8,
    "state": "active",
-   "tilt": 81.0873,
-   "progress": 0.9996,
+   "tilt": 101.0873,
+   "progress": 0.9998,
    "capture": true
   },
   {
    "t": 4.0,
    "state": "active",
-   "tilt": 88.4206,
+   "tilt": 108.4206,
    "progress": 1.0,
    "capture": true
   },
   {
    "t": 4.2,
    "state": "active",
-   "tilt": 89.9965,
+   "tilt": 109.9965,
    "progress": 1.0,
    "capture": true
   },
   {
    "t": 4.4,
    "state": "active",
-   "tilt": 90.0,
+   "tilt": 110.0,
    "progress": 1.0,
    "capture": true
   },
   {
    "t": 4.6,
    "state": "active",
-   "tilt": 90.0,
+   "tilt": 110.0,
    "progress": 1.0,
    "capture": true
   },
   {
    "t": 4.8,
    "state": "active",
-   "tilt": 90.0,
+   "tilt": 110.0,
    "progress": 1.0,
    "capture": true
   }

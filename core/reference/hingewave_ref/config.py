@@ -15,7 +15,8 @@ EFFECT_JSON = CORE_DIR / "effect.json"
 
 @dataclass(frozen=True)
 class LaptopConfig:
-    start_angle: float
+    arm_delta: float
+    rest_seconds: float
     end_angle: float
     arm_velocity: float
 
@@ -74,7 +75,8 @@ def config_from_dict(d: dict) -> Config:
         still_seconds=float(d["stillSeconds"]),
         clear_seconds=float(d["clearSeconds"]),
         laptop=LaptopConfig(
-            start_angle=float(lp["startAngle"]),
+            arm_delta=float(lp["armDelta"]),
+            rest_seconds=float(lp["restSeconds"]),
             end_angle=float(lp["endAngle"]),
             arm_velocity=float(lp["armVelocity"]),
         ),

@@ -3,11 +3,13 @@ import Foundation
 /// Tuned effect parameters. Mirrors core/effect.json; a test proves the two are identical.
 public struct EffectConfig: Codable, Equatable {
     public struct Laptop: Codable, Equatable {
-        public var startAngle: Double
+        public var armDelta: Double
+        public var restSeconds: Double
         public var endAngle: Double
         public var armVelocity: Double
-        public init(startAngle: Double, endAngle: Double, armVelocity: Double) {
-            self.startAngle = startAngle
+        public init(armDelta: Double, restSeconds: Double, endAngle: Double, armVelocity: Double) {
+            self.armDelta = armDelta
+            self.restSeconds = restSeconds
             self.endAngle = endAngle
             self.armVelocity = armVelocity
         }
@@ -71,7 +73,7 @@ public struct EffectConfig: Codable, Equatable {
         springHz: 6.0,
         stillSeconds: 2.0,
         clearSeconds: 0.6,
-        laptop: Laptop(startAngle: 90.0, endAngle: 8.0, armVelocity: 15.0),
+        laptop: Laptop(armDelta: 5.0, restSeconds: 0.3, endAngle: 8.0, armVelocity: 15.0),
         phone: Phone(
             deadZone: 6.0,
             inner: Inner(clearStart: 100.0, clearEnd: 174.0),

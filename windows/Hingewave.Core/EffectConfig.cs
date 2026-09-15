@@ -22,7 +22,7 @@ public sealed record EffectConfig(
         SpringHz: 6.0,
         StillSeconds: 2.0,
         ClearSeconds: 0.6,
-        Laptop: new LaptopConfig(StartAngle: 90.0, EndAngle: 8.0, ArmVelocity: 15.0),
+        Laptop: new LaptopConfig(ArmDelta: 5.0, RestSeconds: 0.3, EndAngle: 8.0, ArmVelocity: 15.0),
         Phone: new PhoneConfig(
             DeadZone: 6.0,
             Inner: new InnerConfig(ClearStart: 100.0, ClearEnd: 174.0),
@@ -36,7 +36,8 @@ public sealed record EffectConfig(
 }
 
 public sealed record LaptopConfig(
-    [property: JsonPropertyName("startAngle")] double StartAngle,
+    [property: JsonPropertyName("armDelta")] double ArmDelta,
+    [property: JsonPropertyName("restSeconds")] double RestSeconds,
     [property: JsonPropertyName("endAngle")] double EndAngle,
     [property: JsonPropertyName("armVelocity")] double ArmVelocity);
 

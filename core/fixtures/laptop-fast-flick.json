@@ -321,43 +321,43 @@
   },
   {
    "t": 0.4,
-   "state": "idle",
-   "tilt": 0.0,
-   "progress": 0.0,
-   "capture": false
+   "state": "armed",
+   "tilt": 14.2711,
+   "progress": 0.0446,
+   "capture": true
   },
   {
    "t": 0.6,
    "state": "active",
-   "tilt": 31.6628,
-   "progress": 0.3321,
+   "tilt": 61.6628,
+   "progress": 0.5756,
    "capture": true
   },
   {
    "t": 0.8,
    "state": "active",
-   "tilt": 79.662,
-   "progress": 0.9976,
+   "tilt": 109.662,
+   "progress": 0.9987,
    "capture": true
   },
   {
    "t": 1.0,
    "state": "active",
-   "tilt": 89.9774,
+   "tilt": 119.9774,
    "progress": 1.0,
    "capture": true
   },
   {
    "t": 1.2,
    "state": "active",
-   "tilt": 90.0,
+   "tilt": 120.0,
    "progress": 1.0,
    "capture": true
   },
   {
    "t": 1.4,
    "state": "active",
-   "tilt": 90.0,
+   "tilt": 120.0,
    "progress": 1.0,
    "capture": true
   }

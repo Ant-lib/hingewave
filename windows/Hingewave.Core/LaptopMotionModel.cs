@@ -36,6 +36,8 @@ public sealed class LaptopMotionModel
 {
     private const double StillSpeed = 2.0;
     private const double EndMargin = 2.0;
+    /// <summary>Within this many degrees of the rest angle counts as reopened.</summary>
+    private const double ReopenMargin = 2.0;
 
     public EffectConfig Config { get; }
     public bool ReduceMotion { get; set; }
@@ -47,9 +49,12 @@ public sealed class LaptopMotionModel
 
     private readonly Spring _spring;
     private double? _lastT;
-    private double? _prevX;
     private double? _stillSince;
     private double? _clearStarted;
+    private double? _restStillSince;
+
+    /// <summary>Angle the lid rests at; follows the lid whenever it has been still for RestSeconds while idle.</summary>
+    public double? RestAngle { get; private set; }
 
     public LaptopMotionModel(EffectConfig? config = null, bool reduceMotion = false)
     {
@@ -80,15 +85,28 @@ public sealed class LaptopMotionModel
             v = 0.0;
         }
         _lastT = t;
-        var prev = _prevX;
-        _prevX = x;
 
         var lp = Config.Laptop;
 
         if (State == MotionState.Idle)
         {
-            var crossed = prev is double p && p >= lp.StartAngle && x < lp.StartAngle;
-            if (crossed && v <= -lp.ArmVelocity)
+            RestAngle ??= x;
+            if (Math.Abs(v) < StillSpeed)
+            {
+                if (_restStillSince is double since)
+                {
+                    if (t - since >= lp.RestSeconds) RestAngle = x;
+                }
+                else
+                {
+                    _restStillSince = t;
+                }
+            }
+            else
+            {
+                _restStillSince = null;
+            }
+            if (RestAngle is double rest && rest - x >= lp.ArmDelta && v <= -lp.ArmVelocity)
             {
                 State = MotionState.Armed;
                 CaptureSeen = false;
@@ -98,7 +116,7 @@ public sealed class LaptopMotionModel
 
         if (State is MotionState.Armed or MotionState.Active)
         {
-            if (x > lp.StartAngle)
+            if (RestAngle is double r && x > r - ReopenMargin)
             {
                 BeginClearing(t);
             }
@@ -141,8 +159,9 @@ public sealed class LaptopMotionModel
     private (double Tilt, double Progress) Shape(double x)
     {
         var lp = Config.Laptop;
-        var tilt = ReduceMotion ? 0.0 : Math.Max(0.0, lp.StartAngle - x);
-        var progress = Easing.Smoothstep((lp.StartAngle - x) / (lp.StartAngle - lp.EndAngle));
+        var rest = RestAngle ?? x;
+        var tilt = ReduceMotion ? 0.0 : Math.Max(0.0, rest - x);
+        var progress = Easing.Smoothstep((rest - x) / Math.Max(rest - lp.EndAngle, 1e-6));
         return (tilt, progress);
     }
 
@@ -160,5 +179,8 @@ public sealed class LaptopMotionModel
         _stillSince = null;
         _clearStarted = null;
         CaptureSeen = false;
+        // Re-anchor at the current angle so a fresh close starts from here.
+        RestAngle = null;
+        _restStillSince = null;
     }
 }

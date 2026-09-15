@@ -62,7 +62,7 @@ The menu has four items. **Follow the Lid** turns the effect off and on. **Previ
 
 Good to know:
 
-- A nudge while typing does not trigger it. The lid has to be closing at a deliberate pace when it crosses 90 degrees.
+- It starts from wherever your lid rests, 105 degrees or 130: once the lid has closed 5 degrees from that angle at a deliberate pace, the effect begins. A nudge while typing is too slow to trigger it.
 - Stop part way and the desktop clears back after two seconds, so you can work at any angle.
 - Reopen before the Mac sleeps and the effect plays in reverse. Once it has slept, waking ends the effect immediately.
 - With an external monitor attached, the effect ends when the built-in display switches off. Nothing lands on the monitor.

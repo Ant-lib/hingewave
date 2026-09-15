@@ -14,6 +14,7 @@ from .spring import Spring
 
 STILL_SPEED = 2.0        # degrees per second, below this the lid counts as still
 END_MARGIN = 2.0         # degrees above endAngle required before a stillness clear
+REOPEN_MARGIN = 2.0      # within this many degrees of the rest angle counts as reopened
 DETENT_SAMPLES = 12      # sensor events needed to decide detent-only
 DETENT_VALUES = (0.0, 90.0, 180.0)
 
@@ -44,10 +45,13 @@ class LaptopMotionModel:
         self.spring = Spring(cfg.spring_hz)
         self.state = "idle"
         self.last_t: Optional[float] = None
-        self.prev_x: Optional[float] = None
         self.still_since: Optional[float] = None
         self.clear_started: Optional[float] = None
         self.capture_seen = False
+        # Angle the lid rests at. Follows the lid whenever it has been still for
+        # rest_seconds while idle, so the effect starts from wherever the lid was.
+        self.rest_angle: Optional[float] = None
+        self.rest_still_since: Optional[float] = None
 
     # Host events -----------------------------------------------------------
 
@@ -68,20 +72,26 @@ class LaptopMotionModel:
         else:
             x, v = self.spring.step(angle, t - self.last_t)
         self.last_t = t
-        prev = self.prev_x
-        self.prev_x = x
 
         lp = self.cfg.laptop
 
         if self.state == "idle":
-            crossed = prev is not None and prev >= lp.start_angle and x < lp.start_angle
-            if crossed and v <= -lp.arm_velocity:
+            if self.rest_angle is None:
+                self.rest_angle = x
+            if abs(v) < STILL_SPEED:
+                if self.rest_still_since is None:
+                    self.rest_still_since = t
+                elif t - self.rest_still_since >= lp.rest_seconds:
+                    self.rest_angle = x
+            else:
+                self.rest_still_since = None
+            if self.rest_angle - x >= lp.arm_delta and v <= -lp.arm_velocity:
                 self.state = "armed"
                 self.capture_seen = False
                 self.still_since = None
 
         if self.state in ("armed", "active"):
-            if x > lp.start_angle:
+            if self.rest_angle is not None and x > self.rest_angle - REOPEN_MARGIN:
                 self._begin_clearing(t)
             elif abs(v) < STILL_SPEED and x > lp.end_angle + END_MARGIN:
                 if self.still_since is None:
@@ -110,8 +120,9 @@ class LaptopMotionModel:
 
     def _shape(self, x: float) -> tuple[float, float]:
         lp = self.cfg.laptop
-        tilt = max(0.0, lp.start_angle - x)
-        progress = smoothstep((lp.start_angle - x) / (lp.start_angle - lp.end_angle))
+        rest = self.rest_angle if self.rest_angle is not None else x
+        tilt = max(0.0, rest - x)
+        progress = smoothstep((rest - x) / max(rest - lp.end_angle, 1e-6))
         if self.reduce_motion:
             tilt = 0.0
         return tilt, progress
@@ -127,6 +138,9 @@ class LaptopMotionModel:
         self.still_since = None
         self.clear_started = None
         self.capture_seen = False
+        # Re-anchor at the current angle so a fresh close starts from here.
+        self.rest_angle = None
+        self.rest_still_since = None
 
 
 class PhoneMapping:

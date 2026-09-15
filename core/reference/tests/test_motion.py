@@ -50,7 +50,7 @@ def test_slow_close_arms_activates_and_reaches_full_progress():
     assert "armed" in states
     assert "active" in states
     first_armed = next(t for t, o in outs if o.state == "armed")
-    assert first_armed >= 1.0
+    assert 1.1 <= first_armed <= 1.4          # 5 degrees below the 110 degree rest at 37 deg/s
     at_end = [o for t, o in outs if 3.8 <= t <= 3.9 and o.state == "active"]
     assert at_end, "should still be active near the end angle"
     assert at_end[-1].progress > 0.98
@@ -95,6 +95,27 @@ def test_reopen_plays_in_reverse_then_clears_above_start():
     assert by_t[2.4].state == "active" and by_t[3.2].state == "active"
     assert p_mid < p_low
     assert by_t[5.4].state == "idle"
+
+
+def test_arms_from_any_resting_angle_after_five_degrees():
+    m = LaptopMotionModel(CFG)
+    trace = list(hold(0.0, 105.0, 1.0)) + list(ramp(1.0, 105.0, 3.0, 40.0)) + list(hold(3.0, 40.0, 3.5))
+    outs = run(m, trace)
+    first_armed = next(t for t, o in outs if o.state == "armed")
+    angle_at_arm = dict(trace)[first_armed]
+    assert 97.0 <= angle_at_arm <= 100.5
+    active = [o for _, o in outs if o.state == "active"]
+    assert active and active[-1].tilt > 60.0
+
+
+def test_rest_angle_follows_a_slow_reopen():
+    m = LaptopMotionModel(CFG)
+    trace = list(hold(0.0, 100.0, 1.0)) + list(ramp(1.0, 100.0, 5.0, 130.0)) + list(hold(5.0, 130.0, 6.0)) \
+        + list(ramp(6.0, 130.0, 8.0, 60.0))
+    outs = run(m, trace)
+    assert all(o.state == "idle" for t, o in outs if t < 6.0)
+    first_armed = next(t for t, o in outs if o.state == "armed")
+    assert 6.1 <= first_armed <= 6.35            # arms 5 degrees below the new 130 degree rest
 
 
 def test_display_off_forces_idle():

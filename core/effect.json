@@ -6,7 +6,8 @@
   "stillSeconds": 2.0,
   "clearSeconds": 0.6,
   "laptop": {
-    "startAngle": 90.0,
+    "armDelta": 5.0,
+    "restSeconds": 0.3,
     "endAngle": 8.0,
     "armVelocity": 15.0
   },

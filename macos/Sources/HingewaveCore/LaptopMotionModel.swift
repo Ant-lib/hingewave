@@ -27,6 +27,8 @@ public func smoothstep(_ x: Double) -> Double {
 public struct LaptopMotionModel {
     static let stillSpeed = 2.0
     static let endMargin = 2.0
+    /// Within this many degrees of the rest angle counts as reopened.
+    static let reopenMargin = 2.0
 
     public let config: EffectConfig
     public var reduceMotion: Bool
@@ -35,9 +37,12 @@ public struct LaptopMotionModel {
 
     private var spring: Spring
     private var lastT: Double?
-    private var prevX: Double?
     private var stillSince: Double?
     private var clearStarted: Double?
+    /// Angle the lid rests at. Follows the lid whenever it has been still for
+    /// restSeconds while idle, so the effect starts from wherever the lid was.
+    public private(set) var restAngle: Double?
+    private var restStillSince: Double?
 
     public init(config: EffectConfig = .defaults, reduceMotion: Bool = false) {
         self.config = config
@@ -72,14 +77,21 @@ public struct LaptopMotionModel {
             v = 0
         }
         lastT = t
-        let prev = prevX
-        prevX = x
 
         let lp = config.laptop
 
         if state == .idle {
-            let crossed = prev.map { $0 >= lp.startAngle && x < lp.startAngle } ?? false
-            if crossed && v <= -lp.armVelocity {
+            if restAngle == nil { restAngle = x }
+            if abs(v) < Self.stillSpeed {
+                if let since = restStillSince {
+                    if t - since >= lp.restSeconds { restAngle = x }
+                } else {
+                    restStillSince = t
+                }
+            } else {
+                restStillSince = nil
+            }
+            if let rest = restAngle, rest - x >= lp.armDelta, v <= -lp.armVelocity {
                 state = .armed
                 captureSeen = false
                 stillSince = nil
@@ -87,7 +99,7 @@ public struct LaptopMotionModel {
         }
 
         if state == .armed || state == .active {
-            if x > lp.startAngle {
+            if let rest = restAngle, x > rest - Self.reopenMargin {
                 beginClearing(t: t)
             } else if abs(v) < Self.stillSpeed && x > lp.endAngle + Self.endMargin {
                 if let since = stillSince {
@@ -121,8 +133,9 @@ public struct LaptopMotionModel {
 
     private func shape(_ x: Double) -> (Double, Double) {
         let lp = config.laptop
-        let tilt = reduceMotion ? 0 : max(0, lp.startAngle - x)
-        let progress = smoothstep((lp.startAngle - x) / (lp.startAngle - lp.endAngle))
+        let rest = restAngle ?? x
+        let tilt = reduceMotion ? 0 : max(0, rest - x)
+        let progress = smoothstep((rest - x) / max(rest - lp.endAngle, 1e-6))
         return (tilt, progress)
     }
 
@@ -138,5 +151,8 @@ public struct LaptopMotionModel {
         stillSince = nil
         clearStarted = nil
         captureSeen = false
+        // Re-anchor at the current angle so a fresh close starts from here.
+        restAngle = nil
+        restStillSince = nil
     }
 }

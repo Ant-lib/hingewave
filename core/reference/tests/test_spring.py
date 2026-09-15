@@ -9,7 +9,7 @@ def test_config_loads_repo_defaults():
     assert isinstance(cfg, Config)
     assert cfg.eye_distance == 2.0
     assert cfg.max_blur == 0.036
-    assert cfg.laptop.start_angle == 90.0
+    assert cfg.laptop.arm_delta == 5.0
     assert cfg.laptop.end_angle == 8.0
     assert cfg.phone.inner.clear_start == 100.0
     assert cfg.phone.cover.frost_end == 26.0

@@ -111,9 +111,10 @@ starting point, not scripture.
 | `springHz` | 6.0 | Natural frequency of the angle smoother |
 | `stillSeconds` | 2.0 | Stillness before the picture clears back |
 | `clearSeconds` | 0.6 | Duration of the clear-back animation |
-| `laptop.startAngle` | 90 | Lid angle where the effect begins on a close |
+| `laptop.armDelta` | 5 | Degrees the lid must close from its resting angle before the effect arms |
+| `laptop.restSeconds` | 0.3 | Stillness needed while idle before the current angle becomes the resting angle |
 | `laptop.endAngle` | 8 | Lid angle where the panel is fully dark |
-| `laptop.armVelocity` | 15 | Closing speed in degrees per second required at `startAngle` |
+| `laptop.armVelocity` | 15 | Closing speed in degrees per second required when the arming distance is reached |
 | `phone.deadZone` | 6 | Degrees from 0 and 180 treated as settled |
 | `phone.inner.clearStart` | 100 | Inner panel is fully frosted at or below this angle |
 | `phone.inner.clearEnd` | 174 | Inner panel is fully clear at or above this angle |
@@ -144,20 +145,25 @@ read from the spring state.
 
 States: `idle`, `armed`, `active`, `clearing`.
 
-- `idle`: nothing rendered, capture stopped, sensor polled.
-- `idle -> armed`: the smoothed angle crosses `startAngle` downward with velocity at
-  or below `-armVelocity`. Capture starts warming up. A nudge while typing does not
-  arm.
+- `idle`: nothing rendered, capture stopped, sensor polled. The model keeps a
+  resting angle: whenever the smoothed angle has been still (speed under 2 degrees
+  per second) for `restSeconds`, the current angle becomes the rest. The first
+  sample seeds it. So the effect starts from wherever the lid was, 105 degrees or
+  130, not from a fixed threshold.
+- `idle -> armed`: the smoothed angle is at least `armDelta` below the resting angle
+  and the closing speed is at or above `armVelocity`. Capture starts warming up. A
+  nudge while typing does not arm because it is too slow.
 - `armed -> active`: the first captured frame is ready. The overlay appears.
-- In `active`: `tilt = max(0, startAngle - angle)` in degrees, converted to radians
-  for the shader. `progress = smoothstep((startAngle - angle) / (startAngle -
-  endAngle))`, clamped to `[0, 1]`. Reopening lowers both; the effect plays in
-  reverse.
+- In `active`: `tilt = max(0, rest - angle)` in degrees, converted to radians for the
+  shader. `progress = smoothstep((rest - angle) / (rest - endAngle))`, clamped to
+  `[0, 1]`. Reopening lowers both; the effect plays in reverse.
 - `active -> clearing`: the angle has been still (speed under 2 degrees per second)
-  for `stillSeconds` and is above `endAngle + 2`, or the angle rises back above
-  `startAngle`. A multiplier animates from 1 to 0 over `clearSeconds` and scales
-  both tilt and progress.
-- `clearing -> idle`: the multiplier reaches 0. Capture stops.
+  for `stillSeconds` and is above `endAngle + 2`, or the angle rises back to within
+  2 degrees of the resting angle. A multiplier animates from 1 to 0 over
+  `clearSeconds` and scales both tilt and progress.
+- `clearing -> idle`: the multiplier reaches 0. Capture stops. The resting angle is
+  re-anchored at the current angle, so a lid left half closed can be closed further
+  and the effect starts again from there.
 - Any state `-> idle` immediately when the built-in display turns off, the sensor
   fails, or capture fails. The desktop is never left tilted.
 - Reduce Motion: tilt is disabled; blur and darkening still follow the angle.
