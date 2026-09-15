@@ -108,17 +108,10 @@ public sealed class TrayIcon : IDisposable
 
     private static Icon MakeIcon()
     {
-        // A small laptop glyph: screen tilted over a base line.
-        using var bmp = new Bitmap(32, 32);
-        using (var g = Graphics.FromImage(bmp))
-        {
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            g.Clear(Color.Transparent);
-            using var pen = new Pen(Color.White, 3);
-            g.DrawLine(pen, 3, 26, 29, 26);
-            g.DrawPolygon(pen, new[] { new Point(9, 6), new Point(25, 8), new Point(24, 22), new Point(8, 22) });
-        }
-        return Icon.FromHandle(bmp.GetHicon());
+        // The same mark as the executable icon, embedded so the tray never shows a generic glyph.
+        using var stream = typeof(TrayIcon).Assembly.GetManifestResourceStream("Hingewave.App.hingewave.ico");
+        if (stream != null) return new Icon(stream, 32, 32);
+        return SystemIcons.Application;
     }
 
     public void Dispose()

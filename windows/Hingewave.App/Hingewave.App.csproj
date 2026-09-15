@@ -12,9 +12,11 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <Description>The iPhone Duo fold animation for Windows laptops, driven by the best available lid angle source.</Description>
+    <ApplicationIcon>hingewave.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Render/FoldShader.hlsl" LogicalName="Hingewave.App.Render.FoldShader.hlsl" />
+    <EmbeddedResource Include="hingewave.ico" LogicalName="Hingewave.App.hingewave.ico" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Hingewave.Core/Hingewave.Core.csproj" />

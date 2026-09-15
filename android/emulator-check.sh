@@ -62,6 +62,7 @@ PY
   echo 1
 }
 
+"$ADB" logcat -c 2>/dev/null || true
 echo "== set live wallpaper"
 "$ADB" shell am start -W -a android.service.wallpaper.CHANGE_LIVE_WALLPAPER \
   --ecn android.service.wallpaper.extra.LIVE_WALLPAPER_COMPONENT com.antlib.hingewave/.wallpaper.HingewaveWallpaperService >/dev/null
@@ -117,4 +118,5 @@ echo "  drained -> $OUT/splash-drained.png"
 "$ADB" shell am broadcast -a com.antlib.hingewave.DEBUG_SETTINGS -n com.antlib.hingewave/.DebugSettingsReceiver --es effect auto >/dev/null
 "$ADB" emu sensor set hinge-angle0 180 >/dev/null
 
+"$ADB" logcat -d -s Hingewave:* AndroidRuntime:E 2>/dev/null | tail -60 > "$OUT/logcat.txt" || true
 echo "done; screenshots in $OUT"

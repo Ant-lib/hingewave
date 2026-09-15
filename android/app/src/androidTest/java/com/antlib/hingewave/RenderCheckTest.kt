@@ -95,3 +95,17 @@ class RenderCheckTest {
         return if (mse == 0.0) Double.POSITIVE_INFINITY else 10.0 * log10(1.0 / mse)
     }
 }
+
+/** Compiles both AGSL shaders on the device so a shader error shows up as a readable test failure. */
+@RunWith(AndroidJUnit4::class)
+class ShaderCompileTest {
+    @Test
+    fun foldShaderCompiles() {
+        android.graphics.RuntimeShader(com.antlib.hingewave.render.FoldShader.source)
+    }
+
+    @Test
+    fun splashShaderCompiles() {
+        android.graphics.RuntimeShader(com.antlib.hingewave.render.SplashShader.source)
+    }
+}

@@ -43,7 +43,7 @@ object SplashShader {
             float w = 0.05;
             float x = d - front;
             float bump = gauss(x, w);
-            float refract = ring * wet * 0.03 * (-x / (w * w)) * bump * w;
+            float bend = ring * wet * 0.03 * (-x / (w * w)) * bump * w;
             float crest = ring * wet * bump;
 
             // Swell behind the front: slow standing wave that fades toward the far edge.
@@ -60,10 +60,10 @@ object SplashShader {
                 float r = 0.012 + 0.006 * hash(fi + 9.0);
                 float m = gauss(length(p), r) * ring * wet * step(0.0, dd);
                 drop += m;
-                refract += m * 0.02 * (d - dd) / r;
+                bend += m * 0.02 * (d - dd) / r;
             }
 
-            float uShift = side * (refract + swell);
+            float uShift = side * (bend + swell);
             float u2 = clamp(u + uShift, 0.0, 1.0);
             float v2 = v;
 

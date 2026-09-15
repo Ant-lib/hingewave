@@ -41,6 +41,7 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/Hingewave"
 strip -x "$APP/Contents/MacOS/Hingewave" 2>/dev/null || true
 sed "s/__VERSION__/$VERSION/g" Info.plist > "$APP/Contents/Info.plist"
+cp Resources/Hingewave.icns "$APP/Contents/Resources/Hingewave.icns"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 
 IDENTITY="${HINGEWAVE_SIGNING_IDENTITY:--}"

@@ -257,7 +257,12 @@ class HingewaveWallpaperService : WallpaperService() {
             painter?.recycle()
             val picture = WallpaperImage.load(this@HingewaveWallpaperService, settings.imageUri, width, height)
             painter = FoldPainter(picture, config)
-            splashPainter = SplashPainter(picture, config)
+            splashPainter = try {
+                SplashPainter(picture, config)
+            } catch (e: Exception) {
+                android.util.Log.e("Hingewave", "splash shader failed to compile", e)
+                null
+            }
         }
     }
 }

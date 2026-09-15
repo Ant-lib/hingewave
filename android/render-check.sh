@@ -25,7 +25,7 @@ DEVICE_DIR=/data/local/tmp/hingewave-core
 "$ADB" install -r app/build/outputs/apk/debug/app-debug.apk >/dev/null
 "$ADB" install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk >/dev/null
 
-result="$("$ADB" shell am instrument -w -r -e class "$PKG.RenderCheckTest" "$PKG.test/androidx.test.runner.AndroidJUnitRunner" 2>&1 || true)"
+result="$("$ADB" shell am instrument -w -r -e class "$PKG.ShaderCompileTest,$PKG.RenderCheckTest" "$PKG.test/androidx.test.runner.AndroidJUnitRunner" 2>&1 || true)"
 echo "$result" | grep -E 'INSTRUMENTATION_STATUS: (test|stack)=|INSTRUMENTATION_RESULT|OK \(|FAILURES|Error' | head -20 || true
 
 mkdir -p build/render-check
@@ -39,6 +39,6 @@ else
   echo "no render check report found on the device" >&2
 fi
 
-echo "$result" | grep -q 'OK (1 test)' && { echo "render check passed"; exit 0; }
+echo "$result" | grep -q 'OK (3 tests)' && { echo "render check passed"; exit 0; }
 echo "render check failed" >&2
 exit 1

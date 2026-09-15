@@ -1,3 +1,5 @@
+<img src="docs/assets/icon-256.png" alt="Hingewave icon" width="96" align="right">
+
 # Hingewave
 
 **The iPhone Duo fold animation for your MacBook lid, Windows laptop and Android foldable.**
