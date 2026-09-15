@@ -6,9 +6,9 @@ Commands:
 Installers:
   - Architecture: x64
     InstallerUrl: https://github.com/Ant-lib/hingewave/releases/download/v0.2.0/hingewave-x64.exe
-    InstallerSha256: __SHA256__
+    InstallerSha256: f8ad022c77168a4c227c843893deab2cf028fe226361982005517f1747de673c
   - Architecture: arm64
     InstallerUrl: https://github.com/Ant-lib/hingewave/releases/download/v0.2.0/hingewave-arm64.exe
-    InstallerSha256: __SHA256__
+    InstallerSha256: 761f4f4b722dee17ea989c6173a44db8ef376e42df1d10a1820dabd7efbe70ec
 ManifestType: installer
 ManifestVersion: 1.6.0

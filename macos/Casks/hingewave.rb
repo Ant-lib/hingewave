@@ -8,7 +8,7 @@
 # flag so the first launch is not blocked; Screen Recording still has to be granted.
 cask "hingewave" do
   version "0.2.0"
-  sha256 "__SHA256__"
+  sha256 "65611dd2b876428716284abdd6dc5402cc901000f7e6a8a3f22fd0672e671ac9"
 
   url "https://github.com/Ant-lib/hingewave/releases/download/v#{version}/Hingewave-mac.zip"
   name "Hingewave"
