@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+macos/.build/
+macos/build/
+macos/signing-identity.txt
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/keystore.properties
+android/*.jks
+android/*.keystore
+android/.idea/
+android/.kotlin/
+
+# Windows
+windows/bin/
+windows/obj/
+windows/**/bin/
+windows/**/obj/
+windows/.vs/
+
+# Core reference tooling
+core/.venv/
+core/__pycache__/
+core/**/__pycache__/
+core/out/
