@@ -43,9 +43,12 @@ ditto -x -k "$TMP/$ASSET" "$TMP/out"
 
 pkill -x Hingewave 2>/dev/null || true
 if [ -d "$APP" ]; then
-  # Releases are ad-hoc signed, so a new build no longer matches the old Screen
-  # Recording grant. Clear it so the next grant attaches cleanly to this build.
-  tccutil reset ScreenCapture "$BUNDLE_ID" >/dev/null 2>&1 || true
+  # Releases from 0.2.1 on are signed with one stable certificate, so the Screen
+  # Recording grant survives updates. An older ad-hoc signed copy cannot keep its
+  # grant; clear it so the new prompt attaches cleanly to this build.
+  if codesign -dv "$APP" 2>&1 | grep -q 'Signature=adhoc'; then
+    tccutil reset ScreenCapture "$BUNDLE_ID" >/dev/null 2>&1 || true
+  fi
   rm -rf "$APP"
 fi
 ditto "$TMP/out/Hingewave.app" "$APP"
@@ -55,8 +58,8 @@ open "$APP"
 cat <<'EOF'
 Installed /Applications/Hingewave.app and opened it. A laptop icon is now in the menu bar.
 
-One-time step: macOS will ask for Screen Recording. Open System Settings, go to
-Privacy and Security, Screen Recording, and turn on Hingewave. Then close the lid
-slowly. Hingewave only captures the built-in display while the lid is moving and
-never stores or sends anything.
+One-time step: Hingewave asks for Screen Recording right now. Click Open System
+Settings and turn on Hingewave under Privacy and Security, Screen Recording. Then
+close the lid slowly. Hingewave only captures the built-in display while the lid is
+moving and never stores or sends anything. The grant survives future updates.
 EOF

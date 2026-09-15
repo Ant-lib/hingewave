@@ -18,7 +18,7 @@ One repository, three native apps, one shared definition of the effect. Every po
 curl -fsSL https://raw.githubusercontent.com/Ant-lib/hingewave/main/macos/install.sh | bash
 ```
 
-That downloads the latest release, verifies its checksum, puts Hingewave in Applications and opens it. A laptop icon appears in the menu bar. macOS then asks for Screen Recording once: turn on Hingewave under System Settings, Privacy and Security, Screen Recording. Now close the lid slowly.
+That downloads the latest release, verifies its checksum, puts Hingewave in Applications and opens it. A laptop icon appears in the menu bar and macOS immediately asks for Screen Recording: click Open System Settings and turn on Hingewave under Privacy and Security, Screen Recording. Now close the lid slowly. Releases are signed with one stable certificate, so the grant survives updates; an installer cannot grant it for you, macOS only allows the app to ask.
 
 Homebrew users: `brew tap ant-lib/tap` then `brew install --cask ant-lib/tap/hingewave`. Homebrew 6 asks you to trust third-party taps first with `brew trust ant-lib/tap`.
 

@@ -124,6 +124,14 @@ enum CLI {
         var controller: AppController?
         var status: StatusItemController!
 
+        // Ask for Screen Recording on the first launch rather than at the first lid close.
+        // macOS shows its own dialog with an Open System Settings button; the grant is
+        // tied to the signing certificate, so signed releases keep it across updates.
+        if !ScreenStreamer.hasPermission() {
+            Log.info("screen recording not granted; asking")
+            ScreenStreamer.requestPermission()
+        }
+
         func makeController(_ sensor: LidAngleSensor) -> AppController? {
             Log.info("lid sensor: \(sensor.resolution.label)")
             do {

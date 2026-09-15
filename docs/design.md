@@ -293,10 +293,13 @@ Distribution without an Apple Developer account:
   `/Applications/Hingewave.app`, clears the quarantine flag and opens the app. It
   touches nothing else: no keychain, no certificates. A curl-pipe-bash script that
   imports signing keys would cost more trust than it saves.
-- Releases are ad-hoc signed, so the code identity changes with every release and
-  macOS asks for the Screen Recording grant again after an update. The installer
-  resets the stale grant first so the new prompt attaches cleanly. Updates are
-  manual and rare, so this is the accepted cost of having no Developer ID.
+- Releases are signed in CI with a self-signed "Hingewave Release" certificate kept
+  in repository secrets. The designated requirement then reads `identifier
+  "com.antlib.hingewave" and certificate root = H"..."`, which is stable across
+  releases, so the Screen Recording grant survives updates. Gatekeeper still treats
+  the app as unnotarized; the installer and the cask clear the quarantine flag.
+  Dev builds stay ad-hoc signed. The app asks for Screen Recording at its first
+  launch, so the installer's launch shows the prompt at install time.
 - Homebrew cask in `Ant-lib/homebrew-tap` with a postflight that clears the
   quarantine flag (Homebrew 6 removed the `--no-quarantine` option).
 - Browser downloads are documented with the Privacy and Security "Open Anyway" path.

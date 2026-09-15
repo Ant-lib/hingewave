@@ -7,10 +7,10 @@
 #   ./build.sh --install       copy into /Applications (quits a running copy first)
 #   ./build.sh --run           open the built or installed app
 #
-# HINGEWAVE_SIGNING_IDENTITY="Apple Development: Name (TEAMID)"  sign with a real identity
-# instead of ad-hoc. Ad-hoc signatures change with every build, so macOS asks for the
-# Screen Recording grant again after a rebuild; install.sh solves that for end users
-# with a stable local identity.
+# HINGEWAVE_SIGNING_IDENTITY="Hingewave Release"  sign with a named identity instead of
+# ad-hoc (HINGEWAVE_SIGNING_KEYCHAIN selects the keychain that holds it). Releases are
+# signed with a self-signed "Hingewave Release" certificate so the Screen Recording
+# grant survives updates; ad-hoc dev builds change identity on every build.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -45,7 +45,9 @@ cp Resources/Hingewave.icns "$APP/Contents/Resources/Hingewave.icns"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 
 IDENTITY="${HINGEWAVE_SIGNING_IDENTITY:--}"
-codesign --force --deep --sign "$IDENTITY" "$APP"
+KEYCHAIN_ARGS=()
+[ -n "${HINGEWAVE_SIGNING_KEYCHAIN:-}" ] && KEYCHAIN_ARGS=(--keychain "$HINGEWAVE_SIGNING_KEYCHAIN")
+codesign --force --deep --sign "$IDENTITY" ${KEYCHAIN_ARGS[@]+"${KEYCHAIN_ARGS[@]}"} "$APP"
 codesign --verify --deep --strict "$APP"
 echo "built $APP"
 

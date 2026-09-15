@@ -21,9 +21,33 @@ jobs:
       - name: Unit tests
         working-directory: macos
         run: swift test
+      - name: Import the release signing certificate
+        env:
+          P12_BASE64: ${{ secrets.MACOS_SIGNING_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.MACOS_SIGNING_P12_PASSWORD }}
+        run: |
+          if [ -z "$P12_BASE64" ]; then
+            echo "no signing certificate secret; the release will be ad-hoc signed"
+            exit 0
+          fi
+          keychain="$RUNNER_TEMP/hingewave-sign.keychain-db"
+          echo "$P12_BASE64" | base64 -d > "$RUNNER_TEMP/release-signing.p12"
+          security create-keychain -p tmp "$keychain"
+          security set-keychain-settings "$keychain"
+          security unlock-keychain -p tmp "$keychain"
+          security import "$RUNNER_TEMP/release-signing.p12" -k "$keychain" -P "$P12_PASSWORD" -T /usr/bin/codesign -A
+          security set-key-partition-list -S apple-tool:,apple: -s -k tmp "$keychain" >/dev/null
+          security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '" ')
+          rm -f "$RUNNER_TEMP/release-signing.p12"
+          echo "HINGEWAVE_SIGNING_IDENTITY=Hingewave Release" >> "$GITHUB_ENV"
+          echo "HINGEWAVE_SIGNING_KEYCHAIN=$keychain" >> "$GITHUB_ENV"
       - name: Build universal app and zip
         working-directory: macos
         run: ./build.sh --universal --zip
+      - name: Signature
+        run: |
+          codesign -dv macos/build/Hingewave.app 2>&1 | grep -E 'Authority|Signature|Identifier'
+          codesign -d -r- macos/build/Hingewave.app 2>&1 | grep designated
       - name: Golden render check
         run: macos/build/Hingewave.app/Contents/MacOS/Hingewave --render-check "$RUNNER_TEMP/render-check" --core core
       - name: Create release
