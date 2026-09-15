@@ -34,17 +34,27 @@ tap_label() {
 import re, sys
 xml = open(sys.argv[1], encoding="utf-8").read()
 pattern = re.compile(sys.argv[2], re.I)
+# Prefer a clickable match; fall back to any matching node, since list rows often
+# carry the text on a child while the parent takes the click.
+best = None
 for m in re.finditer(r'<node[^>]*>', xml):
     node = m.group(0)
     text = re.search(r'text="([^"]*)"', node)
     desc = re.search(r'content-desc="([^"]*)"', node)
     label = ((text and text.group(1)) or "") + " " + ((desc and desc.group(1)) or "")
-    if pattern.search(label) and 'clickable="true"' in node:
-        b = re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', node)
-        if b:
-            x1, y1, x2, y2 = map(int, b.groups())
-            print((x1 + x2) // 2, (y1 + y2) // 2)
-            break
+    if not pattern.search(label):
+        continue
+    b = re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', node)
+    if not b:
+        continue
+    clickable = 'clickable="true"' in node
+    if best is None or (clickable and not best[0]):
+        best = (clickable, b.groups())
+    if clickable:
+        break
+if best:
+    x1, y1, x2, y2 = map(int, best[1])
+    print((x1 + x2) // 2, (y1 + y2) // 2)
 PY
 )"
   if [ -z "$bounds" ]; then echo 0; return; fi

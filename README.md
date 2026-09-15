@@ -6,7 +6,7 @@ Close the lid and the desktop stays anchored in space while the glass tilts over
 
 ![The effect at four lid angles](docs/assets/fold-frames.png)
 
-One repository, three native apps, one shared definition of the effect. macOS ships first. Android and Windows follow on the same core.
+One repository, three native apps, one shared definition of the effect. Every port passes the same motion fixtures and the same golden render check in CI.
 
 ## Install
 
@@ -24,11 +24,33 @@ Prefer a manual install? Download `Hingewave-mac.zip` from [Releases](https://gi
 
 Requirements: macOS 14 Sonoma or later and a MacBook with a lid angle sensor. That is the 2019 16-inch MacBook Pro and later, MacBook Air with M2 or later, and 14-inch or 16-inch MacBook Pro with M1 Pro or later. The M1 MacBook Air and the 13-inch M1 and M2 MacBook Pro have no continuous sensor; the menu says so and the app stays idle.
 
-### Android and Windows
+### Android
 
-Coming. The design and the shared core are ready; see [docs/design.md](docs/design.md) for the plan, including which foldables expose a usable hinge angle (Galaxy Z Fold 8 and Pixel Folds yes, Galaxy Z Fold 7 and earlier no) and how Windows laptops without a hinge sensor are handled.
+Download `hingewave-<version>.apk` from [Releases](https://github.com/Ant-lib/hingewave/releases) and install it, or add this repository in [Obtainium](https://github.com/ImranR98/Obtainium) to get updates. Open Hingewave, pick a picture or keep the built-in one, and tap **Set as live wallpaper**. Then fold the phone slowly.
+
+It is a live wallpaper, so it needs no accessibility service, no overlay permission and no screen capture. Only the wallpaper folds; icons stay sharp. On the inner screen the moving half folds about the centre line while the other half stays still; on the cover screen the whole panel frosts as the phone opens.
+
+Requirements: Android 13 or later and a foldable whose hinge sensor reports continuous angles to apps. The Galaxy Z Fold 8 and the Pixel Fold family do. The Galaxy Z Fold 7 and earlier, Z Flip 5 and 6, and the Z TriFold expose only 0, 90 and 180 degrees to third-party apps; Hingewave detects that and plays a timed transition instead, and says so in its settings screen.
+
+### Windows
+
+Download `hingewave-x64.exe` (or `hingewave-arm64.exe` for Snapdragon laptops) from [Releases](https://github.com/Ant-lib/hingewave/releases) and run it. A laptop icon appears in the tray. The winget manifest under `windows/winget` is submitted with each release, after which `winget install Ant-lib.Hingewave` works too.
+
+The executable is not code signed, so SmartScreen shows "Windows protected your PC" the first time: click More info, then Run anyway. Verify the download against `SHA256SUMS-windows.txt` if you prefer.
+
+Windows laptops rarely have a hinge angle sensor, so Hingewave picks the best source it can find and shows it in the tray menu:
+
+| Tier | Source | What you get |
+|---|---|---|
+| 1 | Hinge angle sensor (`Windows.Devices.Sensors.HingeAngleSensor`) | The real thing, continuous |
+| 2 | Lid accelerometer, present on most convertibles and 2-in-1s | Continuous angle with the base assumed level; run **Calibrate lid sensor** once from the tray menu |
+| 3 | Lid switch only | A fixed 0.6 second transition on close and open |
+
+Requirements: Windows 10 version 2004 or later, a primary display, and Windows Graphics Capture (built in since 2004).
 
 ## Using it
+
+### macOS
 
 The menu has four items. **Follow the Lid** turns the effect off and on. **Preview Fold** plays a scripted close and reopen so you can see the effect without touching the lid; before Screen Recording is granted it folds a generated picture instead of your desktop. **Launch at Login** does what it says. **Quit** quits.
 
@@ -56,9 +78,11 @@ The full design, including the math, is in [docs/design.md](docs/design.md).
 
 ## Privacy
 
-No network access, no analytics, no accounts. Screen frames go from ScreenCaptureKit to Metal and never leave the GPU; they are dropped when the effect clears. Screens the system marks secure are not captured. Events are appended to `~/Library/Logs/Hingewave.log`; that log never contains screen content.
+No network access, no analytics, no accounts, on any platform. On macOS and Windows, screen frames go from ScreenCaptureKit or Windows Graphics Capture straight to the GPU and are dropped when the effect clears; screens the system marks secure are not captured. The Android wallpaper captures nothing at all: it only reads the hinge sensor and draws your picture. Event logs (`~/Library/Logs/Hingewave.log` on macOS, `%LOCALAPPDATA%\Hingewave\Hingewave.log` on Windows) never contain screen content.
 
 ## Build from source
+
+### macOS
 
 The Xcode Command Line Tools are enough (`xcode-select --install`). The Metal shader compiles at runtime, so full Xcode is not required.
 
@@ -78,17 +102,27 @@ Hingewave --demo                 the same sweep over a generated picture, no per
 Hingewave --preview 45           move to one angle and hold until the effect clears
 ```
 
-The reference implementation needs Python 3 with NumPy and Pillow: `pip install -e "core/reference[test]"`, then `python -m pytest core/reference` and, after changing the effect, `python -m hingewave_ref regen` from `core/reference`.
+### Android
+
+JDK 17 and the Android SDK (platform 35). `cd android && ./gradlew :app:testDebugUnitTest :app:assembleDebug`. With a device or emulator attached, `./render-check.sh` runs the golden check through the real GPU pipeline and `./emulator-check.sh` additionally applies the wallpaper and drives the virtual hinge, saving screenshots into `android/build/emulator-shots`.
+
+### Windows
+
+The .NET 8 SDK. `dotnet test windows/Hingewave.Core.Tests` runs anywhere, including macOS and Linux; `dotnet build windows/Hingewave.App` compiles anywhere too. `pwsh windows/build.ps1` on Windows publishes the single-file executables, and `hingewave.exe --render-check <dir>` runs the golden check on the WARP software rasteriser. Other flags mirror the macOS ones: `--probe`, `--simulate-close`, `--demo`, `--preview <deg>`.
+
+### Shared core
+
+The reference implementation needs Python 3 with NumPy and Pillow: `pip install -e "core/reference[test]"`, then `python -m pytest core/reference` and, after changing the effect, `python -m hingewave_ref regen` from `core/reference`. CI fails if the committed fixtures and goldens are stale.
 
 ## Verified hardware
 
 | Platform | Device | Status |
 |---|---|---|
-| macOS | 14-inch MacBook Pro, M1 Pro, macOS 26 | Sensor, motion model, renderer and demo overlay verified. Live capture pending a Screen Recording grant on the test machine. |
-| Android | Galaxy Z Fold 8 | Not started |
-| Windows | Lenovo Yoga 7i 2-in-1 | Not started |
+| macOS | 14-inch MacBook Pro, M1 Pro, macOS 26 | Sensor, motion model, Metal renderer and the demo overlay verified on the machine. Live desktop capture still needs a Screen Recording grant on that machine. |
+| Android | Emulator, 7.6 inch fold-in profile, API 34, in CI | __ANDROID_STATUS__ |
+| Windows | GitHub Actions runner, WARP software rasteriser | Unit tests, fixtures and the golden render check pass in CI. Not yet run on a physical laptop; a Lenovo Yoga 7i 2-in-1 is the planned test machine. |
 
-Reports from other machines are welcome as issues: include the Mac model, macOS version, and what `Hingewave --probe` prints.
+Physical Galaxy Z Fold 8 and Windows laptop reports are welcome as issues. Include the device, OS version, what the settings screen or tray menu says about the sensor, and a short recording if you can.
 
 ## Credits
 

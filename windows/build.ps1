@@ -19,7 +19,7 @@ if (-not $SkipTests) {
 New-Item -ItemType Directory -Force build | Out-Null
 foreach ($rid in "win-x64", "win-arm64") {
     dotnet publish Hingewave.App -c Release -r $rid --self-contained true `
-        -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=none `
+        -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=none `
         -o "build/$rid" --nologo
     if ($LASTEXITCODE -ne 0) { throw "publish failed for $rid" }
     $arch = $rid.Replace("win-", "")
