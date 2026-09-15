@@ -6,8 +6,8 @@ final class StatusItemController: NSObject {
     static let followLidKey = "followLid"
 
     private let item: NSStatusItem
-    private let controller: AppController?
-    private let sensorAvailable: Bool
+    private var controller: AppController?
+    private var sensorAvailable: Bool
     private let angleItem = NSMenuItem(title: "Waiting for the lid", action: nil, keyEquivalent: "")
     private let followItem = NSMenuItem(title: "Follow the Lid", action: #selector(toggleFollow), keyEquivalent: "")
     private let previewItem = NSMenuItem(title: "Preview Fold", action: #selector(preview), keyEquivalent: "")
@@ -38,15 +38,39 @@ final class StatusItemController: NSObject {
         item.menu = menu
 
         if !sensorAvailable {
-            angleItem.title = "No lid angle sensor on this Mac"
+            angleItem.title = "Lid angle sensor not available (checking again)"
             followItem.isEnabled = false
         }
+        refresh()
+    }
+
+    /// Wires a controller created after launch, once the sensor became readable.
+    func attach(controller: AppController) {
+        self.controller = controller
+        sensorAvailable = true
+        followItem.isEnabled = true
+        angleItem.title = "Waiting for the lid"
+        controller.onSample = { [weak self] sample in self?.update(angle: sample.angle) }
+        controller.onSensorAvailability = { [weak self] available in self?.sensorAvailability(available) }
         refresh()
     }
 
     func update(angle: Double) {
         angleItem.title = String(format: "Lid: %.0f deg", angle)
         item.button?.toolTip = angleItem.title
+    }
+
+    func sensorAvailability(_ available: Bool) {
+        if !available {
+            angleItem.title = "Lid sensor not answering (paused until it is back)"
+            item.button?.toolTip = angleItem.title
+        }
+    }
+
+    /// Says the sensor could not be opened at all, after retries stopped.
+    func noSensor() {
+        angleItem.title = "No lid angle sensor on this Mac"
+        followItem.isEnabled = false
     }
 
     private func refresh() {

@@ -28,6 +28,8 @@ final class AppController {
     /// Latest sample for the menu bar.
     private(set) var lastAngle: Double = 0
     var onSample: ((LidMonitor.Sample) -> Void)?
+    /// Forwarded from the monitor: false when the sensor stops answering, true when it is back.
+    var onSensorAvailability: ((Bool) -> Void)?
     /// Called once a scripted source finishes and the effect has cleared.
     var onScriptFinished: (() -> Void)?
     private var scriptDone = false
@@ -41,6 +43,11 @@ final class AppController {
 
     func start() {
         monitor.onSample = { [weak self] sample in self?.handle(sample) }
+        monitor.onSensorAvailability = { [weak self] available in
+            Log.info(available ? "lid sensor answering again" : "lid sensor stopped answering; effect paused")
+            if !available { self?.tearDown() }
+            self?.onSensorAvailability?(available)
+        }
         monitor.start()
 
         let nc = NSWorkspace.shared.notificationCenter

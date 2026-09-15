@@ -76,6 +76,13 @@ final class LidMonitor {
     /// Delivered on the main thread for every poll.
     var onSample: ((Sample) -> Void)?
 
+    /// Delivered on the main thread once when reads have failed for two seconds, and
+    /// again with `true` when they resume. Real sensors can be refused by the system
+    /// for a while (kIOReturnNotPermitted was observed while a video call held the camera).
+    var onSensorAvailability: ((Bool) -> Void)?
+    private var consecutiveFailures = 0
+    private var reportedLost = false
+
     init(source: AngleSource, model: LaptopMotionModel, hz: Double = 50) {
         self.source = source
         self.model = model
@@ -115,6 +122,11 @@ final class LidMonitor {
         var next = CACurrentMediaTime()
         while running {
             if let angle = source.read() {
+                consecutiveFailures = 0
+                if reportedLost {
+                    reportedLost = false
+                    DispatchQueue.main.async { [weak self] in self?.onSensorAvailability?(true) }
+                }
                 let now = CACurrentMediaTime()
                 let (out, smoothed) = lock.withLock { () -> (MotionOutput, Double) in
                     let o = model.feed(t: now, angle: angle)
@@ -122,6 +134,13 @@ final class LidMonitor {
                 }
                 let sample = Sample(angle: angle, smoothed: smoothed, output: out, sourceFinished: source.finished)
                 DispatchQueue.main.async { [weak self] in self?.onSample?(sample) }
+            } else {
+                consecutiveFailures += 1
+                if !reportedLost && Double(consecutiveFailures) >= hz * 2 {
+                    reportedLost = true
+                    lock.withLock { model.displayOff() }
+                    DispatchQueue.main.async { [weak self] in self?.onSensorAvailability?(false) }
+                }
             }
             next += interval
             let sleep = next - CACurrentMediaTime()

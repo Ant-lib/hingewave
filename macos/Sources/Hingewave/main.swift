@@ -120,29 +120,53 @@ enum CLI {
             return 2
         }
 
-        let sensor = LidAngleSensor()
+        let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         var controller: AppController?
-        if let sensor {
+        var status: StatusItemController!
+
+        func makeController(_ sensor: LidAngleSensor) -> AppController? {
             Log.info("lid sensor: \(sensor.resolution.label)")
             do {
-                let c = try AppController(device: device, source: sensor,
-                                          reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
+                let c = try AppController(device: device, source: sensor, reduceMotion: reduceMotion)
                 let defaults = UserDefaults.standard
                 if defaults.object(forKey: StatusItemController.followLidKey) != nil {
                     c.followLid = defaults.bool(forKey: StatusItemController.followLidKey)
                 }
-                controller = c
+                return c
             } catch {
                 Log.info("renderer failed: \(error)")
-                return 2
+                return nil
             }
-        } else {
-            Log.info("no lid angle sensor")
         }
 
-        let status = StatusItemController(controller: controller, sensorAvailable: sensor != nil)
-        controller?.onSample = { sample in status.update(angle: sample.angle) }
-        controller?.start()
+        if let sensor = LidAngleSensor() {
+            controller = makeController(sensor)
+            guard controller != nil else { return 2 }
+            status = StatusItemController(controller: controller, sensorAvailable: true)
+            controller?.onSample = { sample in status.update(angle: sample.angle) }
+            controller?.onSensorAvailability = { available in status.sensorAvailability(available) }
+            controller?.start()
+        } else {
+            // The sensor can be refused for a while (observed during a video call) or be
+            // genuinely absent. Keep checking every five seconds; give up after ten minutes.
+            Log.info("no lid angle sensor yet; retrying")
+            status = StatusItemController(controller: nil, sensorAvailable: false)
+            var attempts = 0
+            Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
+                attempts += 1
+                if let sensor = LidAngleSensor() {
+                    timer.invalidate()
+                    guard let c = makeController(sensor) else { return }
+                    controller = c
+                    status.attach(controller: c)
+                    c.start()
+                } else if attempts >= 120 {
+                    timer.invalidate()
+                    Log.info("no lid angle sensor after ten minutes; giving up")
+                    status.noSensor()
+                }
+            }
+        }
 
         // Keep the status controller alive for the app's lifetime.
         objc_setAssociatedObject(app, "hingewave.status", status, .OBJC_ASSOCIATION_RETAIN)
