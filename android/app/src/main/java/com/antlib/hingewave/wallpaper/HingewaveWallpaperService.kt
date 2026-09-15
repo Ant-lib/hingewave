@@ -55,6 +55,7 @@ class HingewaveWallpaperService : WallpaperService() {
         // Splash mode (detent-only sensors, or chosen in settings).
         private val splash = SplashTimeline(config)
         private var lastSensorValue = Double.NaN
+        private var lastSplashState = com.antlib.hingewave.core.SplashState.IDLE
         private val sensorManager = getSystemService(SensorManager::class.java)
         private val gyro: Sensor? = sensorManager?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
         private var gyroRegistered = false
@@ -103,6 +104,7 @@ class HingewaveWallpaperService : WallpaperService() {
 
         override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, w: Int, h: Int) {
             super.onSurfaceChanged(holder, format, w, h)
+            android.util.Log.d("Hingewave", "surface ${w}x$h preview=$isPreview")
             width = w
             height = h
             val previous = if (surfaceSeen) panel else null
@@ -120,6 +122,7 @@ class HingewaveWallpaperService : WallpaperService() {
         }
 
         override fun onVisibilityChanged(isVisible: Boolean) {
+            android.util.Log.d("Hingewave", "visibility $isVisible preview=$isPreview")
             visible = isVisible
             if (isVisible) {
                 source.start()
@@ -177,7 +180,7 @@ class HingewaveWallpaperService : WallpaperService() {
                     splash.trigger(t)
                     // Only arriving at a detent settles; readings that merely stay near one do not.
                     if (settled && !wasSettled) splash.settle(t)
-                    android.util.Log.d("Hingewave", "splash trigger angle=$angle settled=$settled state=${splash.state}")
+                    android.util.Log.d("Hingewave", "splash trigger angle=$angle settled=$settled state=${splash.state} t=${"%.3f".format(t)}")
                 }
                 requestFrame()
             }
@@ -209,6 +212,10 @@ class HingewaveWallpaperService : WallpaperService() {
             if (!visible) return
             if (useSplash) {
                 val out = splash.frame(frameTimeNanos / 1e9)
+                if (out.state != lastSplashState) {
+                    android.util.Log.d("Hingewave", "splash ${lastSplashState} -> ${out.state} age=${"%.2f".format(out.age)} front=${"%.2f".format(out.front)} wet=${"%.2f".format(out.wet)} t=${"%.3f".format(frameTimeNanos / 1e9)}")
+                    lastSplashState = out.state
+                }
                 drawSplash(out)
                 if (splash.isActive) requestFrame()
                 return
