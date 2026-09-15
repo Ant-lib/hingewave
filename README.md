@@ -28,6 +28,8 @@ Requirements: macOS 14 Sonoma or later and a MacBook with a lid angle sensor. Th
 
 Download `hingewave-<version>.apk` from [Releases](https://github.com/Ant-lib/hingewave/releases) and install it, or add this repository in [Obtainium](https://github.com/ImranR98/Obtainium) to get updates. Open Hingewave, pick a picture or keep the built-in one, and tap **Set as live wallpaper**. Then fold the phone slowly.
 
+![The wallpaper on the emulator at 150, 120, 80 and 40 degrees](docs/assets/android-sweep.png)
+
 It is a live wallpaper, so it needs no accessibility service, no overlay permission and no screen capture. Only the wallpaper folds; icons stay sharp. On the inner screen the moving half folds about the centre line while the other half stays still; on the cover screen the whole panel frosts as the phone opens.
 
 Requirements: Android 13 or later and a foldable whose hinge sensor reports continuous angles to apps. The Galaxy Z Fold 8 and the Pixel Fold family do. The Galaxy Z Fold 7 and earlier, Z Flip 5 and 6, and the Z TriFold expose only 0, 90 and 180 degrees to third-party apps; Hingewave detects that and plays a timed transition instead, and says so in its settings screen.
@@ -119,7 +121,7 @@ The reference implementation needs Python 3 with NumPy and Pillow: `pip install 
 | Platform | Device | Status |
 |---|---|---|
 | macOS | 14-inch MacBook Pro, M1 Pro, macOS 26 | Sensor, motion model, Metal renderer and the demo overlay verified on the machine. Live desktop capture still needs a Screen Recording grant on that machine. |
-| Android | Emulator, 7.6 inch fold-in profile, API 34, in CI | __ANDROID_STATUS__ |
+| Android | Emulator, 7.6 inch fold-in profile, API 34, in CI | Unit tests and fixtures pass; the AGSL render check scores 37 to 67 dB against the goldens on the emulator GPU; the wallpaper is applied and driven through a full hinge sweep with screenshots on every CI run. Not yet run on a physical Galaxy Z Fold 8. |
 | Windows | GitHub Actions runner, WARP software rasteriser | Unit tests, fixtures and the golden render check pass in CI. Not yet run on a physical laptop; a Lenovo Yoga 7i 2-in-1 is the planned test machine. |
 
 Physical Galaxy Z Fold 8 and Windows laptop reports are welcome as issues. Include the device, OS version, what the settings screen or tray menu says about the sensor, and a short recording if you can.

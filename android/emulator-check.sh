@@ -86,10 +86,16 @@ if [ -z "$current" ]; then
 fi
 
 echo "== hinge sweep"
+# The emulator animates the hinge to the requested angle over about two seconds,
+# so each step waits before the screenshot. Files are indexed so the return sweep
+# does not overwrite the closing sweep.
+i=0
 for deg in 180 150 120 100 80 60 40 30 60 120 180; do
   "$ADB" emu sensor set hinge-angle0 "$deg" >/dev/null
-  sleep 1.5
-  "$ADB" exec-out screencap -p > "$OUT/inner-$(printf '%03d' "$deg").png"
-  echo "  $deg deg -> $OUT/inner-$(printf '%03d' "$deg").png"
+  sleep 3
+  name="$OUT/$(printf '%02d' "$i")-inner-$(printf '%03d' "$deg").png"
+  "$ADB" exec-out screencap -p > "$name"
+  echo "  $deg deg -> $name"
+  i=$((i + 1))
 done
 echo "done; screenshots in $OUT"
