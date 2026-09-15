@@ -1,0 +1,32 @@
+{
+ "width": 320,
+ "height": 200,
+ "minPsnrDb": 28.0,
+ "entries": [
+  {
+   "file": "t00-p000.png",
+   "tilt": 0.0,
+   "progress": 0.0
+  },
+  {
+   "file": "t15-p020.png",
+   "tilt": 15.0,
+   "progress": 0.2
+  },
+  {
+   "file": "t30-p045.png",
+   "tilt": 30.0,
+   "progress": 0.45
+  },
+  {
+   "file": "t50-p070.png",
+   "tilt": 50.0,
+   "progress": 0.7
+  },
+  {
+   "file": "t75-p095.png",
+   "tilt": 75.0,
+   "progress": 0.95
+  }
+ ]
+}

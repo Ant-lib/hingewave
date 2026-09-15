@@ -1,0 +1,10 @@
+{
+ "platform": "phone-detent",
+ "values": [
+  0.0,
+  3.0,
+  7.0,
+  12.0
+ ],
+ "expectDetent": false
+}
