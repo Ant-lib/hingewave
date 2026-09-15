@@ -36,6 +36,8 @@ Download `hingewave-<version>.apk` from [Releases](https://github.com/Ant-lib/hi
 
 It is a live wallpaper, so it needs no accessibility service, no overlay permission and no screen capture. Only the wallpaper folds; icons stay sharp. On the inner screen the moving half folds about the centre line while the other half stays still; on the cover screen the whole panel frosts as the phone opens.
 
+![The splash shader on the test card: original, ring travelling, wet state](docs/assets/splash-renders.png)
+
 Requirements: Android 13 or later. The fold follows the hinge on foldables whose sensor reports continuous angles to apps: the Galaxy Z Fold 8 and the Pixel Fold family. The Galaxy Z Fold 7 and earlier, Z Flip 5 and 6, and the Z TriFold expose only 0, 90 and 180 degrees to third-party apps. Hingewave detects that and switches to **Splash**: a ripple leaves the hinge the moment the phone starts opening or closing, keeps breathing while you handle it, and drains away after five seconds without movement. Splash can also be picked by hand in the settings screen on any device.
 
 ### Windows
@@ -125,7 +127,7 @@ The reference implementation needs Python 3 with NumPy and Pillow: `pip install 
 | Platform | Device | Status |
 |---|---|---|
 | macOS | 14-inch MacBook Pro, M1 Pro, macOS 26 | Sensor, motion model, Metal renderer and the demo overlay verified on the machine. Live desktop capture still needs a Screen Recording grant on that machine. |
-| Android | Emulator, 7.6 inch fold-in profile, API 34, in CI | Unit tests and fixtures pass; the AGSL render check scores 37 to 67 dB against the goldens on the emulator GPU; the wallpaper is applied and driven through a full hinge sweep with screenshots on every CI run. Not yet run on a physical Galaxy Z Fold 8. |
+| Android | Emulator, 7.6 inch fold-in profile, API 34, in CI | Unit tests and fixtures pass; the fold shader scores 37 to 67 dB against the goldens on the emulator GPU; the splash shader is rendered offscreen and its ring and wet states checked; the wallpaper is applied and driven through a hinge sweep in both modes with timestamped screenshots on every CI run. Not yet run on a physical Galaxy Z Fold 8 or Fold 7. |
 | Windows | GitHub Actions runner, WARP software rasteriser | Unit tests, fixtures and the golden render check pass in CI. Not yet run on a physical laptop; a Lenovo Yoga 7i 2-in-1 is the planned test machine. |
 
 Physical Galaxy Z Fold 8 and Windows laptop reports are welcome as issues. Include the device, OS version, what the settings screen or tray menu says about the sensor, and a short recording if you can.
