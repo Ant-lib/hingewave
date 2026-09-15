@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <RootNamespace>Hingewave.App</RootNamespace>
+    <AssemblyName>hingewave</AssemblyName>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <SelfContained>false</SelfContained>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <Description>The iPhone Duo fold animation for Windows laptops, driven by the best available lid angle source.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Render/FoldShader.hlsl" LogicalName="Hingewave.App.Render.FoldShader.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Hingewave.Core/Hingewave.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Vortice.D3DCompiler" Version="3.8.3" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.8.3" />
+  </ItemGroup>
+</Project>

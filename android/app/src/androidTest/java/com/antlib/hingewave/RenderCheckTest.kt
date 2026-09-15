@@ -22,11 +22,11 @@ import kotlin.math.log10
 /**
  * Renders core/test-card.png through the AGSL shader at every golden entry and
  * compares with core/golden by PSNR. The core files are pushed to the device by
- * the test runner script into /sdcard/hingewave-core (see android/render-check.sh).
+ * the test runner script into /data/local/tmp/hingewave-core (see android/render-check.sh).
  */
 @RunWith(AndroidJUnit4::class)
 class RenderCheckTest {
-    private val coreDir = File("/sdcard/hingewave-core")
+    private val coreDir = File("/data/local/tmp/hingewave-core")
 
     @Test
     fun goldensMatchWithinTolerance() {

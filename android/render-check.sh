@@ -9,10 +9,13 @@ cd "$(dirname "$0")"
 ADB="${ANDROID_HOME:-$HOME/Library/Android/sdk}/platform-tools/adb"
 [ -x "$ADB" ] || ADB="$(command -v adb)"
 
-"$ADB" shell rm -rf /sdcard/hingewave-core
-"$ADB" shell mkdir -p /sdcard/hingewave-core/golden
-"$ADB" push ../core/test-card.png /sdcard/hingewave-core/ >/dev/null
-"$ADB" push ../core/golden/. /sdcard/hingewave-core/golden/ >/dev/null
+# /data/local/tmp exists on every device and emulator; /sdcard may not be mounted yet.
+DEVICE_DIR=/data/local/tmp/hingewave-core
+"$ADB" shell "rm -rf $DEVICE_DIR && mkdir -p $DEVICE_DIR/golden"
+"$ADB" push ../core/test-card.png "$DEVICE_DIR/" >/dev/null
+"$ADB" push ../core/golden/. "$DEVICE_DIR/golden/" >/dev/null
+# The test runs as the app's uid, so the files must be world readable.
+"$ADB" shell "chmod 755 $DEVICE_DIR $DEVICE_DIR/golden && chmod 644 $DEVICE_DIR/*.png $DEVICE_DIR/golden/*"
 
 ./gradlew :app:connectedDebugAndroidTest -q --console=plain \
   -Pandroid.testInstrumentationRunnerArguments.class=com.antlib.hingewave.RenderCheckTest || status=$?

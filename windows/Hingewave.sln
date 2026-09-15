@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hingewave.Core", "Hingewave
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hingewave.Core.Tests", "Hingewave.Core.Tests\Hingewave.Core.Tests.csproj", "{2FAFD883-2168-42F6-8A4D-D2A9B6280E97}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hingewave.App", "Hingewave.App\Hingewave.App.csproj", "{8E7E8D27-A529-4529-96E8-7FED68111549}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{2FAFD883-2168-42F6-8A4D-D2A9B6280E97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2FAFD883-2168-42F6-8A4D-D2A9B6280E97}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FAFD883-2168-42F6-8A4D-D2A9B6280E97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E7E8D27-A529-4529-96E8-7FED68111549}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E7E8D27-A529-4529-96E8-7FED68111549}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E7E8D27-A529-4529-96E8-7FED68111549}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E7E8D27-A529-4529-96E8-7FED68111549}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
