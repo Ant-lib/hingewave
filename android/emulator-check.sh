@@ -113,7 +113,9 @@ for deg in 180 150 120 100 80 60 40 30 60 120 180; do
 done
 echo "== splash mode"
 "$ADB" shell am broadcast -a com.antlib.hingewave.DEBUG_SETTINGS -n com.antlib.hingewave/.DebugSettingsReceiver --es effect splash >/dev/null
-sleep 2
+# Switching modes plays one splash; let it drain (5 s still plus 1.5 s) before the sweep.
+sleep 8
+"$ADB" exec-out screencap -p > "$OUT/splash-00-before.png"
 # A detent change triggers the ripple; the emulator animates the hinge so several
 # sensor events arrive, which keeps the water alive until the five second stillness.
 "$ADB" emu sensor set hinge-angle0 90 >/dev/null

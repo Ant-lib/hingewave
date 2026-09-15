@@ -69,3 +69,12 @@ def test_retrigger_while_draining_keeps_water_level():
     assert again.state == "splashing"
     assert again.wet >= 0.5              # no pop back to zero
     assert again.front < 0.05
+
+
+def test_trigger_while_holding_restarts_the_ripple():
+    s = SplashTimeline(CFG)
+    s.trigger(0.0)
+    assert s.frame(2.0).state == "holding"
+    s.trigger(2.0)
+    again = s.frame(2.05)
+    assert again.state == "splashing" and again.front < 0.1 and again.wet == 1.0

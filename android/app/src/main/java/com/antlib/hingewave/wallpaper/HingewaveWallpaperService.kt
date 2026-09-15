@@ -164,9 +164,14 @@ class HingewaveWallpaperService : WallpaperService() {
             targetAngle = angle
             if (useSplash) {
                 val t = now()
+                val settled = angle <= config.phone.deadZone || angle >= 180.0 - config.phone.deadZone
+                val wasSettled = !lastSensorValue.isNaN() &&
+                    (lastSensorValue <= config.phone.deadZone || lastSensorValue >= 180.0 - config.phone.deadZone)
                 if (!lastSensorValue.isNaN() && angle != lastSensorValue) {
                     splash.trigger(t)
-                    if (angle <= config.phone.deadZone || angle >= 180.0 - config.phone.deadZone) splash.settle(t)
+                    // Only arriving at a detent settles; readings that merely stay near one do not.
+                    if (settled && !wasSettled) splash.settle(t)
+                    android.util.Log.d("Hingewave", "splash trigger angle=$angle settled=$settled state=${splash.state}")
                 }
                 lastSensorValue = angle
                 requestFrame()

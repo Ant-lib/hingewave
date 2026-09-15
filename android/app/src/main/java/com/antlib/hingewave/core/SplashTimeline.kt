@@ -51,12 +51,13 @@ class SplashTimeline(config: EffectConfig = EffectConfig.DEFAULTS) {
                 t0 = t
                 wetStart = 0.0
             }
-            SplashState.DRAINING -> {
+            SplashState.HOLDING, SplashState.DRAINING -> {
+                // A new movement: restart the ripple without a pop.
                 wetStart = wet(t)
                 state = SplashState.SPLASHING
                 t0 = t
             }
-            else -> Unit
+            SplashState.SPLASHING -> Unit
         }
         lastMotion = t
         drainStart = null

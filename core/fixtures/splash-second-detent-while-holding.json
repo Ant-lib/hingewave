@@ -1,0 +1,78 @@
+{
+ "platform": "splash",
+ "events": [
+  {
+   "t": 0.0,
+   "kind": "trigger"
+  },
+  {
+   "t": 2.0,
+   "kind": "trigger"
+  },
+  {
+   "t": 2.6,
+   "kind": "settle"
+  }
+ ],
+ "expect": [
+  {
+   "t": 1.0,
+   "state": "splashing",
+   "front": 0.8333,
+   "ring": 1.0,
+   "wet": 1.0
+  },
+  {
+   "t": 1.9,
+   "state": "holding",
+   "front": 1.5833,
+   "ring": 0.3114,
+   "wet": 1.0
+  },
+  {
+   "t": 2.1,
+   "state": "splashing",
+   "front": 0.0833,
+   "ring": 1.0,
+   "wet": 1.0
+  },
+  {
+   "t": 2.7,
+   "state": "splashing",
+   "front": 0.5833,
+   "ring": 1.0,
+   "wet": 1.0
+  },
+  {
+   "t": 3.15,
+   "state": "splashing",
+   "front": 0.9583,
+   "ring": 1.0,
+   "wet": 1.0
+  },
+  {
+   "t": 3.3,
+   "state": "draining",
+   "front": 1.0833,
+   "ring": 0.8465,
+   "wet": 1.0
+  },
+  {
+   "t": 4.0,
+   "state": "draining",
+   "front": 1.6667,
+   "ring": 0.2636,
+   "wet": 0.5333
+  },
+  {
+   "t": 5.0,
+   "state": "idle",
+   "front": 0.0,
+   "ring": 0.0,
+   "wet": 0.0
+  }
+ ],
+ "tolerance": {
+  "value": 0.02
+ }
+}

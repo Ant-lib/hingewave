@@ -4,7 +4,9 @@ Events come from panel switches, detent changes and the gyroscope; the timeline
 turns them into per-frame values the ripple shader consumes. Ports re-implement
 this and are checked against the splash-*.json fixtures.
 
-    trigger(t)   movement started: a panel lit up or a detent changed
+    trigger(t)   movement started: a panel lit up or a detent changed; while the
+                 ripple is already travelling it only counts as motion, while
+                 holding or draining it starts a fresh ripple
     motion(t)    the phone is still being handled (gyroscope above threshold)
     settle(t)    a fully open or fully closed detent was reached
     frame(t)     -> Output
@@ -47,8 +49,8 @@ class SplashTimeline:
             self.state = "splashing"
             self.t0 = t
             self.wet_start = 0.0
-        elif self.state == "draining":
-            # Restart the ripple without a pop: water continues from its current level.
+        elif self.state in ("holding", "draining"):
+            # A new movement: restart the ripple without a pop, water continues from its level.
             self.wet_start = self._wet(t)
             self.state = "splashing"
             self.t0 = t

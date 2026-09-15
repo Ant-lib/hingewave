@@ -71,6 +71,7 @@ SPLASH_TRACES = {
     "splash-open-and-hold": ([(0.5, "trigger"), (2.0, "motion"), (3.0, "motion")], [0.0, 0.6, 1.0, 1.7, 2.5, 4.0, 7.9, 8.1, 8.8, 9.7]),
     "splash-open-to-flat": ([(0.0, "trigger"), (0.4, "settle")], [0.2, 0.8, 1.19, 1.25, 2.0, 2.8]),
     "splash-retrigger-while-draining": ([(0.0, "trigger"), (5.75, "trigger")], [4.9, 5.2, 5.75, 5.8, 6.5, 11.0, 12.5]),
+    "splash-second-detent-while-holding": ([(0.0, "trigger"), (2.0, "trigger"), (2.6, "settle")], [1.0, 1.9, 2.1, 2.7, 3.15, 3.3, 4.0, 5.0]),
 }
 
 
