@@ -13,7 +13,9 @@ jobs:
       - uses: actions/checkout@v7
       - name: No long dashes in text files
         run: |
-          if git ls-files -z | grep -zvE '\.(png|jks|p12|icns|zip)$' | xargs -0 grep -nP '[\x{2013}\x{2014}]' ; then
+          # -I skips binary files. Compressed assets hit the en dash and em dash
+          # byte sequences by chance, which failed this job once on a GIF.
+          if git ls-files -z | xargs -0 grep -InP '[\x{2013}\x{2014}]' ; then
             echo "long dashes found; use plain hyphens" >&2
             exit 1
           fi
