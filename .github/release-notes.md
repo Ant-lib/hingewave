@@ -1,16 +1,5 @@
-Hingewave 0.2.2. Splash mode now triggers on the first detent change after switching modes (a sensor baseline was only kept in Splash mode before). macOS builds signed with the stable certificate; not notarized.
+Hingewave 0.2.3. The Windows overlay painted a solid black frame on every fold: the full screen triangle winds counter-clockwise and Direct3D culls back faces by default, so the draw was discarded. Metal does not cull, which is why only the Windows port was affected. The WARP golden check now gates CI as well, instead of printing FAIL and passing anyway.
 
-New in this release:
+Blur now keeps 30 percent of its radius at the hinge, so the band on the rotation axis frosts with the rest of the panel rather than going dark while staying sharp. The macOS Dock and the Android icon row are where this shows most.
 
-- The macOS and Windows fold starts from wherever your lid rests (105 degrees or 130), once the lid has closed 5 degrees at a deliberate pace, instead of a fixed 90 degree gate.
-- Splash mode for foldables that only report 0, 90 and 180 degrees (Galaxy Z Fold 7 and earlier, Z Flip 5 and 6): a ripple leaves the hinge when the phone starts opening or closing, keeps breathing while you handle it, and drains after five seconds without movement. Picked automatically on those devices, or by hand in the settings screen.
-- One icon on every platform.
-- macOS retries lid sensor detection and pauses cleanly if the sensor stops answering.
-
-Install on macOS with one line:
-
-```
-curl -fsSL https://raw.githubusercontent.com/Ant-lib/hingewave/main/macos/install.sh | bash
-```
-
-Or with Homebrew: `brew trust ant-lib/tap`, `brew tap ant-lib/tap`, `brew install --cask ant-lib/tap/hingewave`. Verify downloads against the SHA256SUMS files. See the README for Android and Windows.
+macOS builds are signed with the stable release certificate; they are not notarized.

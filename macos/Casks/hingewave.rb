@@ -4,10 +4,10 @@
 #   brew tap ant-lib/tap        (Homebrew 6 asks you to trust third-party taps: brew trust ant-lib/tap)
 #   brew install --cask ant-lib/tap/hingewave
 #
-# The app is ad-hoc signed and not notarized. The postflight step clears the quarantine
+# The app is signed with a stable self-signed certificate and is not notarized. The postflight step clears the quarantine
 # flag so the first launch is not blocked; Screen Recording still has to be granted.
 cask "hingewave" do
-  version "0.2.2"
+  version "0.2.3"
   sha256 "7aeac77ef889885d47e66d66618a786a28af5cfc69ec3be7238eba534f019eef"
 
   url "https://github.com/Ant-lib/hingewave/releases/download/v#{version}/Hingewave-mac.zip"
@@ -33,7 +33,7 @@ cask "hingewave" do
   ]
 
   caveats <<~EOS
-    Hingewave is ad-hoc signed and not notarized; the quarantine flag was cleared on install.
+    Hingewave is signed with a self-signed certificate and is not notarized; the quarantine flag was cleared on install.
     Open it from Applications, then grant Screen Recording under System Settings,
     Privacy and Security, and close the lid slowly.
   EOS
