@@ -112,8 +112,13 @@ jobs:
       - name: Golden render check on WARP
         shell: pwsh
         run: |
-          & windows/build/win-x64/hingewave.exe --render-check "$env:RUNNER_TEMP/render-check" --core core
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # The app is a WinExe, so PowerShell does not wait for it with the call
+          # operator and $LASTEXITCODE never holds the check's exit code. Same trap
+          # as the CI workflow had; keep both on Start-Process -Wait.
+          $p = Start-Process -FilePath (Resolve-Path windows/build/win-x64/hingewave.exe) `
+            -ArgumentList '--render-check', "$env:RUNNER_TEMP/render-check", '--core', 'core' `
+            -NoNewWindow -Wait -PassThru
+          if ($p.ExitCode -ne 0) { exit $p.ExitCode }
       - name: Attach executables
         shell: pwsh
         env:
