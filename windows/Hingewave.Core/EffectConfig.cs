@@ -7,6 +7,7 @@ namespace Hingewave.Core;
 public sealed record EffectConfig(
     [property: JsonPropertyName("eyeDistance")] double EyeDistance,
     [property: JsonPropertyName("maxBlur")] double MaxBlur,
+    [property: JsonPropertyName("blurFloor")] double BlurFloor,
     [property: JsonPropertyName("darkenGain")] double DarkenGain,
     [property: JsonPropertyName("springHz")] double SpringHz,
     [property: JsonPropertyName("stillSeconds")] double StillSeconds,
@@ -18,6 +19,7 @@ public sealed record EffectConfig(
     public static readonly EffectConfig Defaults = new(
         EyeDistance: 2.0,
         MaxBlur: 0.036,
+        BlurFloor: 0.3,
         DarkenGain: 2.0,
         SpringHz: 6.0,
         StillSeconds: 2.0,

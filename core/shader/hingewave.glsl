@@ -14,6 +14,7 @@ uniform float uProgress;         // 0 open, 1 fully folded
 uniform float uAspect;           // length along the hinge / length perpendicular
 uniform float uEyeDistance;      // panel heights, effect.json eyeDistance
 uniform float uMaxBlurPx;        // effect.json maxBlur * panel extent perpendicular to hinge, in pixels
+uniform float uBlurFloor;        // effect.json blurFloor: blur retained at the hinge, 0..1
 uniform float uDarkenGain;       // effect.json darkenGain
 uniform vec2  uPictureSize;      // pixels, (along hinge, perpendicular to hinge)
 
@@ -35,7 +36,7 @@ void main() {
     }
 
     // Section 2.3: blur radius grows from the hinge outward.
-    float r = uMaxBlurPx * uProgress * u;
+    float r = uMaxBlurPx * uProgress * (uBlurFloor + (1.0 - uBlurFloor) * u);
     float lod = log2(max(r, 1.0));
     vec2 texel = 1.0 / uPictureSize;
     vec2 p = vec2(v2, u2);

@@ -4,11 +4,11 @@
 
 **The iPhone Duo fold animation for your MacBook lid, Windows laptop and Android foldable.**
 
-Close the lid and the desktop stays anchored in space while the glass tilts over it, blurring and darkening from the hinge outward. Open it and the picture comes back. The physical hinge is the timeline: Hingewave reads the angle sensor every 20 ms and redraws on the GPU, so the motion of your hand is the motion on screen.
+Close the lid and the desktop stays anchored in space while the glass tilts over it, frosting and darkening from the hinge outward. Open it and the picture comes back. The physical hinge is the timeline: Hingewave reads the angle sensor every 20 ms and redraws on the GPU, so the motion of your hand is the motion on screen.
 
-![The fold on a macOS 26 desktop, closing from a 105 degree resting lid and reopening](docs/assets/fold-demo.gif)
+![The fold on a macOS 26 desktop with the Dock, closing from a 105 degree resting lid and reopening](docs/assets/fold-demo.gif)
 
-![The same effect as still frames at four lid angles](docs/assets/fold-frames.png)
+![The same desktop as still frames at 105, 82, 58 and 35 degrees](docs/assets/fold-frames.png)
 
 One repository, three native apps, one shared definition of the effect. Every port passes the same motion fixtures and the same golden render check in CI.
 
@@ -122,7 +122,7 @@ The .NET 8 SDK. `dotnet test windows/Hingewave.Core.Tests` runs anywhere, includ
 
 ### Shared core
 
-The reference implementation needs Python 3 with NumPy and Pillow: `pip install -e "core/reference[test]"`, then `python -m pytest core/reference` and, after changing the effect, `python -m hingewave_ref regen` from `core/reference`. CI fails if the committed fixtures and goldens are stale.
+The reference implementation needs Python 3 with NumPy and Pillow: `pip install -e "core/reference[test]"`, then `python -m pytest core/reference` and, after changing the effect, `python -m hingewave_ref regen` from `core/reference`. CI fails if the committed fixtures and goldens are stale. `python3 tools/make_demo.py --desktop <picture>` re-renders the two README images through the same reference code.
 
 ## Verified hardware
 

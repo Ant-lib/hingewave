@@ -27,6 +27,7 @@ object FoldShader {
         uniform float progress;       // 0 open, 1 folded
         uniform float eyeDistance;    // panel heights
         uniform float maxBlurPx;      // maxBlur * panel extent perpendicular to the hinge
+        uniform float blurFloor;      // blur kept at the hinge, 0..1
         uniform float darkenGain;
         uniform int hingeEdge;        // 0 bottom, 1 left, 2 right, 3 top
         uniform float2 region;        // [start, end] of the folding band along the hinge axis, in 0..1 of size
@@ -78,7 +79,7 @@ object FoldShader {
             else                     { m = float2(v2, uf); }
             float2 p = m * picSize;
 
-            float r = maxBlurPx * progress * ub;
+            float r = maxBlurPx * progress * (blurFloor + (1.0 - blurFloor) * ub);
             float lod = log2(max(r * 1.4, 1.0));
             float o = r * 0.6;
             half4 c = samplePyramid(p, lod) * 0.4;

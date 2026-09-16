@@ -38,7 +38,8 @@ Three operations, applied in one fragment shader:
    to that resting plane, so the picture keystones: pinned at the hinge, narrowing
    away from it. The picture appears to stay still while the glass moves over it.
 2. Progressive blur. Blur radius grows linearly with distance from the hinge and
-   with fold progress. Zero at the hinge, maximum at the far edge.
+   with fold progress. A fraction of the maximum at the hinge, the full maximum at
+   the far edge.
 3. Darkening. A gradient from the hinge outward, driven by progress at twice the
    strength of the blur, so the panel reads as going dark before it is fully closed.
 
@@ -81,11 +82,20 @@ Pixels whose `(u', v')` fall outside `[0, 1]` are black. There is no head tracki
 Radius in pixels at display pixel `(u, v)`:
 
 ```
-r = maxBlur * H * progress * u
+r = maxBlur * H * progress * (blurFloor + (1 - blurFloor) * u)
 ```
 
 where `H` is the panel extent perpendicular to the hinge in pixels and `maxBlur` is a
-fraction of that extent. The reference kernel is Gaussian with standard deviation
+fraction of that extent.
+
+`blurFloor` is the share of the maximum radius that survives at the hinge itself. It
+exists because blur and darkening are not symmetric: darkening has a floor of 0.35 at
+the hinge (section 2.4) while a pure `progress * u` blur has a floor of zero, so the
+band nearest the rotation axis went dark while staying perfectly sharp. On a 1964 px
+panel at 0.48 progress that band carried 0.8 px of blur against 36 percent darkening.
+A floor of 0.30 raises it to 5.7 px, which is what a macOS Dock or a row of Android
+icons needs before the frosting reads as one piece of glass. The far edge is
+unchanged. The reference kernel is Gaussian with standard deviation
 `r / 2`, truncated at two standard deviations. Ports may implement it with a mip
 chain or blur pyramid sampled at `log2(r)`; the golden-image tolerance in section 4
 allows for kernel differences.
@@ -107,6 +117,7 @@ starting point, not scripture.
 |---|---|---|
 | `eyeDistance` | 2.0 | Eye distance in panel heights |
 | `maxBlur` | 0.036 | Blur radius at the far edge as a fraction of panel height (72 px on a 1964 px panel) |
+| `blurFloor` | 0.30 | Share of that radius still applied at the hinge, so the panel frosts as one |
 | `darkenGain` | 2.0 | Darkening strength relative to progress |
 | `springHz` | 6.0 | Natural frequency of the angle smoother |
 | `stillSeconds` | 2.0 | Stillness before the picture clears back |

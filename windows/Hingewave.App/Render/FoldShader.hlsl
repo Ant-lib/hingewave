@@ -10,7 +10,7 @@ cbuffer FoldUniforms : register(b0)
     float eyeDistance;   // panel heights
     float maxBlurPx;     // effect maxBlur * panel height in pixels
     float darkenGain;
-    float pad0;
+    float blurFloor;   // blur kept at the hinge, 0..1
     float2 texSize;      // picture size in pixels
 };
 
@@ -50,7 +50,7 @@ float4 PS(VOut i) : SV_TARGET
     }
 
     // Section 2.3: blur radius grows from the hinge outward. Mip chain plus a small disc.
-    float r = maxBlurPx * progress * u;
+    float r = maxBlurPx * progress * (blurFloor + (1.0 - blurFloor) * u);
     float lod = log2(max(r * 1.4, 1.0));
     float2 p = float2(v2, 1.0 - u2);
     float2 o = (r * 0.6) / texSize;

@@ -17,7 +17,7 @@ internal struct FoldUniforms
     public float EyeDistance;
     public float MaxBlurPx;
     public float DarkenGain;
-    public float Pad0;
+    public float BlurFloor;
     public float TexWidth;
     public float TexHeight;
 }
@@ -94,6 +94,7 @@ public sealed class FoldRenderer : IDisposable
             EyeDistance = (float)Config.EyeDistance,
             MaxBlurPx = (float)(Config.MaxBlur * targetHeight),
             DarkenGain = (float)Config.DarkenGain,
+            BlurFloor = (float)Config.BlurFloor,
             TexWidth = desc.Width,
             TexHeight = desc.Height,
         };

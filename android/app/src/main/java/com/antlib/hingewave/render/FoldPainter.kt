@@ -52,6 +52,7 @@ class FoldPainter(picture: Bitmap, private val config: EffectConfig = EffectConf
         shader.setFloatUniform("tilt", Math.toRadians(tiltDegrees).toFloat())
         shader.setFloatUniform("progress", progress.toFloat())
         shader.setFloatUniform("maxBlurPx", (config.maxBlur * perpendicularPx).toFloat())
+        shader.setFloatUniform("blurFloor", config.blurFloor.toFloat())
         shader.setIntUniform("hingeEdge", geometry.hingeEdge)
         shader.setFloatUniform("region", geometry.regionStart, geometry.regionEnd)
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)

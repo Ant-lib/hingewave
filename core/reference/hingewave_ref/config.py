@@ -54,6 +54,7 @@ class SplashConfig:
 class Config:
     eye_distance: float
     max_blur: float
+    blur_floor: float
     darken_gain: float
     spring_hz: float
     still_seconds: float
@@ -70,6 +71,7 @@ def config_from_dict(d: dict) -> Config:
     return Config(
         eye_distance=float(d["eyeDistance"]),
         max_blur=float(d["maxBlur"]),
+        blur_floor=float(d["blurFloor"]),
         darken_gain=float(d["darkenGain"]),
         spring_hz=float(d["springHz"]),
         still_seconds=float(d["stillSeconds"]),

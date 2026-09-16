@@ -97,7 +97,9 @@ def render(img: np.ndarray, tilt_deg: float, progress: float, cfg: Config) -> np
     u, _ = panel_coords(h, w)
     warped = perspective_warp(img, tilt_deg, cfg)
     max_r = cfg.max_blur * h
-    radius = max_r * progress * u
+    # Blur has a floor at the hinge so the panel frosts as one, rather than going
+    # dark while staying razor sharp on the rotation axis (docs/design.md 2.3).
+    radius = max_r * progress * (cfg.blur_floor + (1.0 - cfg.blur_floor) * u)
     blurred = variable_blur(warped, radius, max_r)
     return np.clip(darken(blurred, progress, u, cfg.darken_gain), 0.0, 1.0)
 

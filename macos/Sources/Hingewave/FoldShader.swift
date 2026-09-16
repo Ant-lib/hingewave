@@ -9,7 +9,7 @@ struct FoldUniforms {
     var eyeDistance: Float   // panel heights
     var maxBlurPx: Float     // effect maxBlur * panel height in pixels
     var darkenGain: Float
-    var pad0: Float = 0
+    var blurFloor: Float   // effect blurFloor, blur kept at the hinge
     var texSize: SIMD2<Float>
 }
 
@@ -26,7 +26,7 @@ enum FoldShader {
         float eyeDistance;
         float maxBlurPx;
         float darkenGain;
-        float pad0;
+        float blurFloor;
         float2 texSize;
     };
 
@@ -62,7 +62,7 @@ enum FoldShader {
         }
 
         // Section 2.3: blur radius grows from the hinge outward. Mip chain plus a small disc.
-        float r = U.maxBlurPx * U.progress * u;
+        float r = U.maxBlurPx * U.progress * (U.blurFloor + (1.0 - U.blurFloor) * u);
         float lod = log2(max(r * 1.4, 1.0));
         float2 p = float2(v2, 1.0 - u2);
         float2 o = (r * 0.6) / U.texSize;

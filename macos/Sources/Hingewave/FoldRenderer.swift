@@ -79,6 +79,7 @@ final class FoldRenderer {
             eyeDistance: Float(config.eyeDistance),
             maxBlurPx: Float(config.maxBlur * Double(target.height)),
             darkenGain: Float(config.darkenGain),
+            blurFloor: Float(config.blurFloor),
             texSize: SIMD2<Float>(Float(source.width), Float(source.height))
         )
         enc.setRenderPipelineState(pipeline)

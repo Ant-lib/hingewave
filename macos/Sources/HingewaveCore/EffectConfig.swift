@@ -46,6 +46,7 @@ public struct EffectConfig: Codable, Equatable {
 
     public var eyeDistance: Double
     public var maxBlur: Double
+    public var blurFloor: Double
     public var darkenGain: Double
     public var springHz: Double
     public var stillSeconds: Double
@@ -53,10 +54,12 @@ public struct EffectConfig: Codable, Equatable {
     public var laptop: Laptop
     public var phone: Phone
 
-    public init(eyeDistance: Double, maxBlur: Double, darkenGain: Double, springHz: Double,
-                stillSeconds: Double, clearSeconds: Double, laptop: Laptop, phone: Phone) {
+    public init(eyeDistance: Double, maxBlur: Double, blurFloor: Double, darkenGain: Double,
+                springHz: Double, stillSeconds: Double, clearSeconds: Double,
+                laptop: Laptop, phone: Phone) {
         self.eyeDistance = eyeDistance
         self.maxBlur = maxBlur
+        self.blurFloor = blurFloor
         self.darkenGain = darkenGain
         self.springHz = springHz
         self.stillSeconds = stillSeconds
@@ -69,6 +72,7 @@ public struct EffectConfig: Codable, Equatable {
     public static let defaults = EffectConfig(
         eyeDistance: 2.0,
         maxBlur: 0.036,
+        blurFloor: 0.3,
         darkenGain: 2.0,
         springHz: 6.0,
         stillSeconds: 2.0,

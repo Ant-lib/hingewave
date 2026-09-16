@@ -23,6 +23,7 @@ data class SplashConfig(
 data class EffectConfig(
     val eyeDistance: Double,
     val maxBlur: Double,
+    val blurFloor: Double,
     val darkenGain: Double,
     val springHz: Double,
     val stillSeconds: Double,
@@ -36,6 +37,7 @@ data class EffectConfig(
         val DEFAULTS = EffectConfig(
             eyeDistance = 2.0,
             maxBlur = 0.036,
+            blurFloor = 0.3,
             darkenGain = 2.0,
             springHz = 6.0,
             stillSeconds = 2.0,
@@ -66,6 +68,7 @@ data class EffectConfig(
             return EffectConfig(
                 eyeDistance = o.getDouble("eyeDistance"),
                 maxBlur = o.getDouble("maxBlur"),
+                blurFloor = o.getDouble("blurFloor"),
                 darkenGain = o.getDouble("darkenGain"),
                 springHz = o.getDouble("springHz"),
                 stillSeconds = o.getDouble("stillSeconds"),
