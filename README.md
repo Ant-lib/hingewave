@@ -10,6 +10,10 @@ Close the lid and the desktop stays anchored in space while the glass tilts over
 
 ![The same desktop as still frames at 105, 82, 58 and 35 degrees](docs/assets/fold-frames.png)
 
+[![A MacBook closing with the effect, mid fold](docs/assets/macbook-render-poster.jpg)](docs/assets/macbook-render.mp4)
+
+That clip is a render, not a recording. The screen content is real output from `core/reference` at the tuned settings, composited into a generated laptop; the machine, the desk and the lighting are synthetic. What the app does on a real Mac is the GIF above.
+
 One repository, three native apps, one shared definition of the effect. Every port passes the same motion fixtures and the same golden render check in CI.
 
 ## Install
