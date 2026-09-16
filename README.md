@@ -6,7 +6,7 @@
 
 Close the lid and the desktop stays anchored in space while the glass tilts over it, blurring and darkening from the hinge outward. Open it and the picture comes back. The physical hinge is the timeline: Hingewave reads the angle sensor every 20 ms and redraws on the GPU, so the motion of your hand is the motion on screen.
 
-![The fold, closing and reopening from a 105 degree resting lid](docs/assets/fold-demo.gif)
+![The fold on a macOS 26 desktop, closing from a 105 degree resting lid and reopening](docs/assets/fold-demo.gif)
 
 ![The same effect as still frames at four lid angles](docs/assets/fold-frames.png)
 
