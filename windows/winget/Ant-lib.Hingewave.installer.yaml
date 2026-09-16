@@ -1,14 +1,18 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json
+
 PackageIdentifier: Ant-lib.Hingewave
 PackageVersion: 0.2.2
 InstallerType: portable
 Commands:
-  - hingewave
+- hingewave
+MinimumOSVersion: 10.0.19041.0
+ReleaseDate: 2026-09-15
 Installers:
-  - Architecture: x64
-    InstallerUrl: https://github.com/Ant-lib/hingewave/releases/download/v0.2.2/hingewave-x64.exe
-    InstallerSha256: 09673a1f3b4b25605c90c2132c7962c2218c0452b27c7a7630ff1f60e4c9c76f
-  - Architecture: arm64
-    InstallerUrl: https://github.com/Ant-lib/hingewave/releases/download/v0.2.2/hingewave-arm64.exe
-    InstallerSha256: 0a4d03d92776952001b54b4824ac0ce28f3bb1d77e533699987dd818e9e938e7
+- Architecture: x64
+  InstallerUrl: https://github.com/Ant-lib/hingewave/releases/download/v0.2.2/hingewave-x64.exe
+  InstallerSha256: 09673A1F3B4B25605C90C2132C7962C2218C0452B27C7A7630FF1F60E4C9C76F
+- Architecture: arm64
+  InstallerUrl: https://github.com/Ant-lib/hingewave/releases/download/v0.2.2/hingewave-arm64.exe
+  InstallerSha256: 0A4D03D92776952001B54B4824AC0CE28F3BB1D77E533699987DD818E9E938E7
 ManifestType: installer
-ManifestVersion: 1.6.0
+ManifestVersion: 1.12.0

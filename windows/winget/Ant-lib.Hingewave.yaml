@@ -1,7 +1,10 @@
-# Version manifest for the winget-pkgs submission. Filled in at release time by release.yml
-# (installer SHA-256 values) and submitted with the winget-create tool.
+# Version manifest as submitted to microsoft/winget-pkgs (PR #435771), schema 1.12.0.
+# At each release: bump PackageVersion and the URLs, refresh InstallerSha256 from the release
+# SHA256SUMS-windows.txt, then open a new PR under manifests/a/Ant-lib/Hingewave/<version>/.
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.12.0.schema.json
+
 PackageIdentifier: Ant-lib.Hingewave
 PackageVersion: 0.2.2
 DefaultLocale: en-US
 ManifestType: version
-ManifestVersion: 1.6.0
+ManifestVersion: 1.12.0
