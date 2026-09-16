@@ -105,8 +105,20 @@ jobs:
         shell: pwsh
         run: |
           $exe = Get-ChildItem windows/Hingewave.App/bin/Release -Recurse -Filter hingewave.exe | Select-Object -First 1
-          & $exe.FullName --render-check "$env:RUNNER_TEMP/render-check" --core core
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # The app is a WinExe, so PowerShell does not wait for it with the call
+          # operator and $LASTEXITCODE stays stale. This job reported success for
+          # weeks while the check printed FAIL on every golden. Start-Process -Wait
+          # gives the real exit code.
+          $p = Start-Process -FilePath $exe.FullName `
+            -ArgumentList '--render-check', "$env:RUNNER_TEMP/render-check", '--core', 'core' `
+            -NoNewWindow -Wait -PassThru
+          if ($p.ExitCode -ne 0) { exit $p.ExitCode }
+      - name: Upload render check output
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: hingewave-windows-render-check
+          path: ${{ runner.temp }}/render-check
       - name: Publish single-file executables
         shell: pwsh
         run: pwsh windows/build.ps1 -SkipTests

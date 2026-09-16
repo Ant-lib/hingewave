@@ -57,6 +57,7 @@ public static class RenderCheck
         Console.WriteLine("golden             tilt progress  psnr(dB)   result");
         foreach (var e in index.entries)
         {
+            device.ImmediateContext.ClearRenderTargetView(rtv, new Vortice.Mathematics.Color4(0f, 0f, 0f, 1f));
             renderer.Render(source, e.tilt, e.progress, rtv, index.width, index.height);
             var actual = Pixels.ReadBack(device, target);
             var golden = Pixels.LoadBgra(Path.Combine(core, "golden", e.file));
