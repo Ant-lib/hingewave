@@ -36,6 +36,7 @@ public sealed class FoldRenderer : IDisposable
     private readonly ID3D11VertexShader _vs;
     private readonly ID3D11PixelShader _ps;
     private readonly ID3D11SamplerState _sampler;
+    private readonly ID3D11RasterizerState _raster;
     private readonly ID3D11Buffer _uniforms;
     private ID3D11Texture2D? _scratch;
     private ID3D11ShaderResourceView? _scratchView;
@@ -63,6 +64,17 @@ public sealed class FoldRenderer : IDisposable
             MaxAnisotropy = 1,
             ComparisonFunc = ComparisonFunction.Never,
         });
+        // Direct3D culls back faces by default and the full-screen triangle winds
+        // counter-clockwise in screen space, so without this the draw is discarded
+        // and the target stays black. Metal does not cull at all, which is why the
+        // same geometry works there.
+        _raster = device.CreateRasterizerState(new RasterizerDescription
+        {
+            FillMode = FillMode.Solid,
+            CullMode = CullMode.None,
+            DepthClipEnable = true,
+        });
+
         _uniforms = device.CreateBuffer(new BufferDescription(32, BindFlags.ConstantBuffer, ResourceUsage.Dynamic, CpuAccessFlags.Write));
     }
 
@@ -104,6 +116,7 @@ public sealed class FoldRenderer : IDisposable
 
         Context.OMSetRenderTargets(target);
         Context.RSSetViewport(new Viewport(0, 0, targetWidth, targetHeight));
+        Context.RSSetState(_raster);
         Context.IASetInputLayout(null);
         Context.IASetPrimitiveTopology(PrimitiveTopology.TriangleList);
         Context.VSSetShader(_vs);
@@ -170,6 +183,7 @@ public sealed class FoldRenderer : IDisposable
     public void Dispose()
     {
         ReleaseScratch();
+        _raster.Dispose();
         _uniforms.Dispose();
         _sampler.Dispose();
         _ps.Dispose();
