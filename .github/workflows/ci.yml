@@ -128,6 +128,16 @@ jobs:
           path: |
             windows/build/hingewave-*.exe
             windows/build/SHA256SUMS-windows.txt
+      - name: Dry run the winget submission against the latest release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Runs the same script the release uses, with no token and without -Submit:
+          # wingetcreate builds the manifests locally and the script checks their
+          # hashes against the release's SHA256SUMS-windows.txt. Nothing is submitted.
+          $tag = gh release view --repo $env:GITHUB_REPOSITORY --json tagName --jq .tagName
+          ./windows/winget-update.ps1 -Tag $tag -Repository $env:GITHUB_REPOSITORY -OutDir "$env:RUNNER_TEMP/winget-dry-run"
 
   macos:
     name: macOS app
