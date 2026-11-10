@@ -131,8 +131,14 @@ jobs:
           # Classic PAT on the Ant-lib account, public_repo scope only. See windows/winget-update.ps1.
           WINGET_CREATE_GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
         run: |
-          if (-not $env:WINGET_CREATE_GITHUB_TOKEN) {
-            Write-Output "::warning::No WINGET_TOKEN secret, so this release was not submitted to winget."
+          if ($env:GITHUB_REF_NAME -notmatch '^v\d+\.\d+\.\d+$') {
+            Write-Output "::notice::$env:GITHUB_REF_NAME is a pre-release tag, so it is not submitted to winget."
             exit 0
+          }
+          # The README promises every release reaches winget, so a missing token fails the
+          # run rather than warning on a green one.
+          if (-not $env:WINGET_CREATE_GITHUB_TOKEN) {
+            Write-Output "::error::No WINGET_TOKEN secret, so this release could not be submitted to winget."
+            exit 1
           }
           ./windows/winget-update.ps1 -Tag $env:GITHUB_REF_NAME -Repository $env:GITHUB_REPOSITORY -Submit

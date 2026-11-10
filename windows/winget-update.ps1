@@ -25,6 +25,25 @@ if ($Submit -and $OutDir) { throw "pass -Submit or -OutDir, not both" }
 if (-not $Submit -and -not $OutDir) { throw "pass -Submit to open the PR, or -OutDir for a dry run" }
 if ($Submit -and -not $env:WINGET_CREATE_GITHUB_TOKEN) { throw "-Submit needs WINGET_CREATE_GITHUB_TOKEN" }
 
+# Re-running a release must not open a second PR for a version winget already has, or is
+# already reviewing. The release workflow's uploads use --clobber, so reruns are expected.
+if ($Submit) {
+    $headers = @{ Authorization = "Bearer $env:WINGET_CREATE_GITHUB_TOKEN"; "User-Agent" = "hingewave-release" }
+    try {
+        Invoke-RestMethod -Headers $headers "https://api.github.com/repos/microsoft/winget-pkgs/contents/manifests/a/Ant-lib/Hingewave/$version" | Out-Null
+        Write-Host "$PackageId $version is already in winget-pkgs; nothing to submit"
+        return
+    } catch {
+        if ([int]$_.Exception.Response.StatusCode -ne 404) { throw }
+    }
+    $query = [uri]::EscapeDataString("repo:microsoft/winget-pkgs is:pr is:open in:title `"$PackageId version $version`"")
+    $open = Invoke-RestMethod -Headers $headers "https://api.github.com/search/issues?q=$query"
+    if ($open.total_count -gt 0) {
+        Write-Host "an open winget-pkgs PR already submits $PackageId $($version): $($open.items[0].html_url)"
+        return
+    }
+}
+
 $tmp = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { [IO.Path]::GetTempPath() }
 $exe = Join-Path $tmp "wingetcreate.exe"
 Invoke-WebRequest -Uri $WingetCreateUrl -OutFile $exe
