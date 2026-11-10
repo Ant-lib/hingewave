@@ -1,6 +1,6 @@
-# Version manifest as submitted to microsoft/winget-pkgs (PR #435771), schema 1.12.0.
-# At each release: bump PackageVersion and the URLs, refresh InstallerSha256 from the release
-# SHA256SUMS-windows.txt, then open a new PR under manifests/a/Ant-lib/Hingewave/<version>/.
+# Reference copy of the first submission to microsoft/winget-pkgs (PR #435771, merged
+# 2026-10-13), schema 1.12.0. Later versions are submitted by windows/winget-update.ps1
+# from the release workflow, which starts from the published manifest, not this file.
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.12.0.schema.json
 
 PackageIdentifier: Ant-lib.Hingewave
