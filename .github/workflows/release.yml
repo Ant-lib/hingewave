@@ -125,3 +125,20 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload $env:GITHUB_REF_NAME windows/build/hingewave-x64.exe windows/build/hingewave-arm64.exe windows/build/SHA256SUMS-windows.txt --clobber
+      - name: Submit the new version to winget
+        shell: pwsh
+        env:
+          # Classic PAT on the Ant-lib account, public_repo scope only. See windows/winget-update.ps1.
+          WINGET_CREATE_GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
+        run: |
+          if ($env:GITHUB_REF_NAME -notmatch '^v\d+\.\d+\.\d+$') {
+            Write-Output "::notice::$env:GITHUB_REF_NAME is a pre-release tag, so it is not submitted to winget."
+            exit 0
+          }
+          # The README promises every release reaches winget, so a missing token fails the
+          # run rather than warning on a green one.
+          if (-not $env:WINGET_CREATE_GITHUB_TOKEN) {
+            Write-Output "::error::No WINGET_TOKEN secret, so this release could not be submitted to winget."
+            exit 1
+          }
+          ./windows/winget-update.ps1 -Tag $env:GITHUB_REF_NAME -Repository $env:GITHUB_REPOSITORY -Submit

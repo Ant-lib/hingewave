@@ -1,3 +1,5 @@
+# Reference copy of the first submission to microsoft/winget-pkgs (PR #435771, merged
+# 2026-10-13). Not kept current: later versions are submitted by windows/winget-update.ps1.
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json
 
 PackageIdentifier: Ant-lib.Hingewave

@@ -52,7 +52,13 @@ Requirements: Android 13 or later. The fold follows the hinge on foldables whose
 
 ### Windows
 
-Download `hingewave-x64.exe` (or `hingewave-arm64.exe` for Snapdragon laptops) from [Releases](https://github.com/Ant-lib/hingewave/releases) and run it. A laptop icon appears in the tray. The winget manifest under `windows/winget` is submitted with each release, after which `winget install Ant-lib.Hingewave` works too.
+```powershell
+winget install Ant-lib.Hingewave
+```
+
+That installs the latest release from the Windows Package Manager and puts `hingewave` on your path. Run it and a laptop icon appears in the tray. Each release is submitted to winget automatically and shows up there once winget's own validation has merged it; `winget upgrade Ant-lib.Hingewave` then picks it up.
+
+Prefer a direct download? Get `hingewave-x64.exe` (or `hingewave-arm64.exe` for Snapdragon laptops) from [Releases](https://github.com/Ant-lib/hingewave/releases) and run it.
 
 The executable is not code signed, so SmartScreen shows "Windows protected your PC" the first time: click More info, then Run anyway. Verify the download against `SHA256SUMS-windows.txt` if you prefer.
 
