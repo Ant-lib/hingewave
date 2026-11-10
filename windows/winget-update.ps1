@@ -26,22 +26,32 @@ if (-not $Submit -and -not $OutDir) { throw "pass -Submit to open the PR, or -Ou
 if ($Submit -and -not $env:WINGET_CREATE_GITHUB_TOKEN) { throw "-Submit needs WINGET_CREATE_GITHUB_TOKEN" }
 
 # Re-running a release must not open a second PR for a version winget already has, or is
-# already reviewing. The release workflow's uploads use --clobber, so reruns are expected.
-if ($Submit) {
-    $headers = @{ Authorization = "Bearer $env:WINGET_CREATE_GITHUB_TOKEN"; "User-Agent" = "hingewave-release" }
-    try {
-        Invoke-RestMethod -Headers $headers "https://api.github.com/repos/microsoft/winget-pkgs/contents/manifests/a/Ant-lib/Hingewave/$version" | Out-Null
-        Write-Host "$PackageId $version is already in winget-pkgs; nothing to submit"
-        return
-    } catch {
-        if ([int]$_.Exception.Response.StatusCode -ne 404) { throw }
-    }
-    $query = [uri]::EscapeDataString("repo:microsoft/winget-pkgs is:pr is:open in:title `"$PackageId version $version`"")
-    $open = Invoke-RestMethod -Headers $headers "https://api.github.com/search/issues?q=$query"
-    if ($open.total_count -gt 0) {
-        Write-Host "an open winget-pkgs PR already submits $PackageId $($version): $($open.items[0].html_url)"
-        return
-    }
+# already reviewing; the release uploads use --clobber, so reruns are expected. The decision
+# lives in WingetSubmission.psm1. A dry run makes the same lookups, read-only, so the URL and
+# query shapes are exercised on every PR.
+Import-Module (Join-Path $PSScriptRoot "WingetSubmission.psm1") -Force
+$base = "https://github.com/$Repository/releases/download/$Tag"
+$parts = $PackageId.Split(".")
+$manifestPath = "manifests/$($parts[0].Substring(0, 1).ToLower())/$($parts -join '/')/$version/$PackageId.installer.yaml"
+$readToken = if ($env:WINGET_CREATE_GITHUB_TOKEN) { $env:WINGET_CREATE_GITHUB_TOKEN } else { $env:GH_TOKEN }
+$api = @{ "User-Agent" = "hingewave-release" }
+if ($readToken) { $api.Authorization = "Bearer $readToken" }
+$login = if ($Submit) { (Invoke-RestMethod -Headers $api "https://api.github.com/user").login } else { $Repository.Split("/")[0] }
+
+$published = $null
+try {
+    # winget-pkgs is public, so no token is sent here.
+    $published = Invoke-RestMethod -Headers @{ "User-Agent" = "hingewave-release" } "https://raw.githubusercontent.com/microsoft/winget-pkgs/master/$manifestPath"
+} catch {
+    if ([int]$_.Exception.Response.StatusCode -ne 404) { throw }
+}
+$query = [uri]::EscapeDataString("repo:microsoft/winget-pkgs is:pr is:open in:title `"$PackageId version $version`"")
+$open = @((Invoke-RestMethod -Headers $api "https://api.github.com/search/issues?q=$query").items)
+$existing = Resolve-ExistingSubmission -PublishedManifest $published -OpenPullRequests $open -ReleaseBase $base -Login $login
+Write-Host "existing winget submission for $PackageId $($version): $existing"
+if ($Submit -and $existing -ne "none") {
+    Write-Host "nothing to submit"
+    return
 }
 
 $tmp = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { [IO.Path]::GetTempPath() }
@@ -50,7 +60,6 @@ Invoke-WebRequest -Uri $WingetCreateUrl -OutFile $exe
 $hash = (Get-FileHash $exe -Algorithm SHA256).Hash
 if ($hash -ne $WingetCreateSha256) { throw "wingetcreate.exe hash mismatch: got $hash" }
 
-$base = "https://github.com/$Repository/releases/download/$Tag"
 $cmd = @("update", $PackageId, "--version", $version, "--no-open",
     "--urls", "$base/hingewave-x64.exe|x64", "$base/hingewave-arm64.exe|arm64")
 if ($Submit) { $cmd += "--submit" } else { $cmd += @("--out", $OutDir) }
